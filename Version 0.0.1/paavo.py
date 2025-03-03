@@ -1,0 +1,1 @@
+selection = input("Choose your character: ")
