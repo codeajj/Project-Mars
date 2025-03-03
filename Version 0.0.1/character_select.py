@@ -13,24 +13,27 @@ def tulos():
     selection = dbHaku.fetchall()
     return selection
 
-#Printaa kolme hahmoa tietokannan sisältä näyttääkseen
-dbHaku.execute("SELECT player FROM game;")
-
 print("Welcome to Mars Rush!")
 time.sleep(1)
 print("You have three characters to select with varying difficulties!")
 time.sleep(3)
-print(tulos())
-characters = tulos()
 
-print("Choose your character out of these three difficulties!")
 print("""
-      Normal
+      1. Normal
       
-      Hard
+      2. Hard
       
-      Extreme!
+      3. Extreme!
 """)
 
+diff = input("Choose your difficulty: ")
 
-#ALKEELLINEN TESTI
+if diff == "1" or "Normal" or "normal":
+    dbHaku.execute("SELECT player FROM game WHERE player = 'Yrjö';")
+    print(tulos())
+elif diff == "2" or "Hard" or "hard":
+    dbHaku.execute("SELECT player FROM game WHERE player = 'Hasan';")
+    print(tulos())
+else:
+    dbHaku.execute("SELECT player FROM game WHERE player = 'Sum Tin Wong';")
+    print(tulos())
