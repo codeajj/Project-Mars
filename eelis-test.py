@@ -9,17 +9,16 @@ mydb = mysql.connector.connect(
 )
 
 #tehdään hakuväline databaseen selvemmäksi
-dbHaku = mydb.cursor()
+dbSearch = mydb.cursor()
 
 #tehdään databasesta lukeminen selvemmäksi:
-def tulos():
-    ruma = dbHaku.fetchall()
-    #poistetaan kaikki muut paitsi a-z krijaimet, A-Z kirjaimet ja 0-9 numerot
-    kaunis = re.sub(r"[^a-zA-Z0-9 ]", "",str(ruma))
-    return ruma
+def result():
+    ugly = dbSearch.fetchall()
+    #Poistaa kaiken paitsi 1 välilyönnin a-ö krijaimet, A_Z kirjaimet ,ison Ö:n, ison Ä:N, ruotsalainen å kirjain ,norjalainen ö kirjain, viivan
+    beatiful = re.sub(r"[^\s+a-öA-ZÖÄåÅøØ-]", "",str(ugly))
+    return beatiful
 
 print("kerro haluamasi lentokentän ICAO koodi: ")
-icao = input()
-
-dbHaku.execute(f"select name,municipality from airport where gps_code like '{icao}'")
-print(tulos())
+icao = "ENSS"
+dbSearch.execute(f"select name,municipality from airport where gps_code like '{icao}'")
+print(result())
