@@ -9,37 +9,29 @@ mydb = mysql.connector.connect(
   database="project_mars"
 )
 
-#KAUNEUS FILTTERI ON!
 dbHaku = mydb.cursor()
 def tulos():
     ugly = dbHaku.fetchall()
-    selection = re.sub(r"[^a-öA-Ö0-9 ]", "", str(ugly))
+    selection = re.sub(r"[^\s+a-öA-ZÖ0-9ÄåÅøØ-]", "",str(ugly))
     return selection
 
-#HAHMOT:
 def Yrjö():
     dbHaku.execute("SELECT player FROM game WHERE player = 'Yrjö';")
     print(f"Character: ",tulos())
     dbHaku.execute("SELECT wallet FROM game WHERE player = 'Yrjö';")
     print(f"Wallet: ",tulos())
-    dbHaku.execute("SELECT airport.name as 'Airport' FROM airport, game WHERE location = ident and player = 'Yrjö';")
-    print(f"Location: ",tulos())
     return
 def Hasan():
     dbHaku.execute("SELECT player FROM game WHERE player = 'Hasan';")
     print(f"Character: ",tulos())
     dbHaku.execute("SELECT wallet FROM game WHERE player = 'Hasan';")
     print(f"Wallet: ",tulos())
-    dbHaku.execute("SELECT airport.name as 'Airport' FROM airport, game WHERE location = ident and player = 'Hasan';")
-    print(f"Location: ",tulos())
     return
 def SumTinWong():
     dbHaku.execute("SELECT player FROM game WHERE player = 'Sum Tin Wong';")
     print(f"Character: ",tulos())
     dbHaku.execute("SELECT wallet FROM game WHERE player = 'Sum Tin Wong';")
     print(f"Wallet: ",tulos())
-    dbHaku.execute("SELECT airport.name as 'Airport' FROM airport, game WHERE location = ident and player = 'Sum Tin Wong';")
-    print(f"Location: ",tulos())
     return
 
 #INTRO?!?!? Tosi bad veri baad
@@ -66,6 +58,7 @@ if game == "Y" or game == "y":
             Yrjö()
             confirm = input("Do you want to continue? [Y/N] ")
             if confirm == "Y" or confirm == "y":
+                player = "Yrjö"
                 break
             elif confirm == "N" or confirm == "n":
                 diff = input("Choose your difficulty: ")
@@ -73,6 +66,7 @@ if game == "Y" or game == "y":
             Hasan()
             confirm = input("Do you want to continue? [Y/N] ")
             if confirm == "Y" or confirm == "y":
+                player = "Hasan"
                 break
             elif confirm == "N" or confirm == "n":
                 diff = input("Choose your difficulty: ")
@@ -81,6 +75,7 @@ if game == "Y" or game == "y":
             SumTinWong()
             confirm = input("Do you want to continue? [Y/N] ")
             if confirm == "Y" or confirm == "y":
+                player = "Sum Tin Wong"
                 break
             elif confirm == "N" or confirm == "n":
                 diff = input("Choose your difficulty: ")
@@ -93,3 +88,11 @@ if game == "Y" or game == "y":
 elif game == "N" or game == "n":
     print("Bye bye!")
     exit()
+
+def country():
+    ugly = dbHaku.fetchall()
+    selection = re.sub(r"[^\s+a-öA-ZÖ0-9ÄåÅøØ-]", "",str(ugly))
+    return selection
+
+dbHaku.execute(f"SELECT airport.name as 'Airport' FROM airport, game WHERE location = ident and player = '{player}';")
+print(f"Welcome {player} to {country()}")
