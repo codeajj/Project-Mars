@@ -17,21 +17,21 @@ def tulos():
 
 def Yrjö():
     dbHaku.execute("SELECT player FROM game WHERE player = 'Yrjö';")
-    print(f"Character: ",tulos())
+    print(f"Character:",tulos())
     dbHaku.execute("SELECT wallet FROM game WHERE player = 'Yrjö';")
-    print(f"Wallet: ",tulos())
+    print(f"Wallet:",tulos())
     return
 def Hasan():
     dbHaku.execute("SELECT player FROM game WHERE player = 'Hasan';")
-    print(f"Character: ",tulos())
+    print(f"Character:",tulos())
     dbHaku.execute("SELECT wallet FROM game WHERE player = 'Hasan';")
-    print(f"Wallet: ",tulos())
+    print(f"Wallet:",tulos())
     return
-def SumTinWong():
-    dbHaku.execute("SELECT player FROM game WHERE player = 'Sum Tin Wong';")
-    print(f"Character: ",tulos())
-    dbHaku.execute("SELECT wallet FROM game WHERE player = 'Sum Tin Wong';")
-    print(f"Wallet: ",tulos())
+def kim():
+    dbHaku.execute("SELECT player FROM game WHERE player = 'Kim';")
+    print(f"Character:",tulos())
+    dbHaku.execute("SELECT wallet FROM game WHERE player = 'Kim';")
+    print(f"Wallet:",tulos())
     return
 
 #INTRO?!?!? Tosi bad veri baad
@@ -72,10 +72,10 @@ if game == "Y" or game == "y":
                 diff = input("Choose your difficulty: ")
 
         elif diff == "3":
-            SumTinWong()
+            kim()
             confirm = input("Do you want to continue? [Y/N] ")
             if confirm == "Y" or confirm == "y":
-                player = "Sum Tin Wong"
+                player = "Kim"
                 break
             elif confirm == "N" or confirm == "n":
                 diff = input("Choose your difficulty: ")
