@@ -30,7 +30,12 @@ diff = input("Choose your difficulty: ")
 
 if diff == "1" or "Normal" or "normal":
     dbHaku.execute("SELECT player FROM game WHERE player = 'Yrjö';")
-    print(tulos())
+    print(f"Character: ", tulos())
+    dbHaku.execute("SELECT wallet FROM game WHERE player = 'Yrjö';")
+    print(f"Wallet: ", tulos())
+    dbHaku.execute("SELECT airport.name as 'Airport' FROM airport, game WHERE location = ident and player = 'Yrjö';")
+    print(f"Location: ", tulos())
+
 elif diff == "2" or "Hard" or "hard":
     dbHaku.execute("SELECT player FROM game WHERE player = 'Hasan';")
     print(tulos())
