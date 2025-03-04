@@ -65,21 +65,18 @@ print(location(1))
 game_is_playable = True
 
 #tapahtuu kun pelin avaa ensimmäistä kertaa
-print("Tervetuloa peliimme nimeltä PELIN NIMI !")
+print("Welcome to our game called GAME NAME !")
 #Looppi jossa pelin toiminnallisuus tapahtuu
 while True:
     player_prompt = str(input('For move options, type: '"'move'"'. To exit game, type: '"'exit'"'. '))
 
     if not game_is_playable or player_prompt == "exit":
         #Pelin häviäminen
-        print("Hävisit pelin")
+        print("Game over")
         break
 
-    #TILAPÄINEN PELIN TOIMINTALOGIIKKA, VAIN JOTTA TESTATTIIN ETTÄ PYÖRISI
-    player_prompt = int(input("Paina 1 jatkaaksesi peliä ja paina 2 hävitäksesi pelin! "))
-    if player_prompt == 1:
-        print("Olet pelissä")
-    elif player_prompt == 2:
-        game_is_playable = False
+    if player_prompt == "move":
+        print("You can move to ")
+
     else:
         print("Wrong option, try again")
