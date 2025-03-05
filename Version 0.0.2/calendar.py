@@ -1,0 +1,1 @@
+#Luodaan pelin kalenteri, mikä pystyy kertomaan pvm ja kauan aikaa saapua maaliin.
