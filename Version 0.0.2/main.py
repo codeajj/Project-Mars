@@ -190,7 +190,7 @@ print(f"Welcome {player} to {country()}")
 
 #Looppi jossa pelin toiminnallisuus tapahtuu
 while True:
-    player_prompt = str(input('For move options, type: '"'move'"'. To exit game, type: '"'exit'"'.\n '))
+    player_prompt = str(input('For move options, type: '"'move'"'. To exit game, type: '"'exit'"'.\n'))
 
     if not game_is_playable or player_prompt == "exit":
         #Pelin häviäminen
