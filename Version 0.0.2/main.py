@@ -10,7 +10,7 @@ project_mars = mysql.connector.connect(
   password="test",
   database="project_mars"
 )
-player = "Hasan"
+player = ""
 #tehdään hakuväline databaseen
 dbSearch = project_mars.cursor()
 
@@ -66,7 +66,7 @@ def airports():
     elif currentCountry =="Australia":
         ICAO = ["YBIE","YBWN","YBLA","YBOA","ZBAD"]
     elif currentCountry == "China":
-        ICAO = ["", "", "", "", ""]
+        ICAO = ["", "", "", "", ""]# Vasta 2 lentokenttää täytetty, muut myöhemmin kun on ajankontaista
     elif currentCountry == "Germany":
         ICAO = ["", "", "", "", ""]
     elif currentCountry == "Luxembourg":
