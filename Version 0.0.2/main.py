@@ -1,7 +1,8 @@
-
 import mysql.connector
 import re
 import time
+from geopy.geocoders import Nominatim
+from geopy.distance import geodesic
 
 #yhdistetään mysql serveriimme
 project_mars = mysql.connector.connect(
@@ -21,9 +22,10 @@ def result():
     beatiful = re.sub(r"[^\s+a-öA-ZÖ0-9ÄåÅøØ-]", "",str(ugly))
     return beatiful
 
+def textCleaner(text): # toimii kuin resultin funktio, mutta tallentaa pilkut myös
+    beatiful = re.sub(r"[^\s+a-öA-ZÖ,0-9ÄåÅøØ-]", "",str(text))
+    return beatiful
 
-#pelin aikamäärä on 5 vuotta, vuodesta 2077 vuoteen 2082 joka on 1826 päivää (1 karkausvuosi mukaanlukien) ja tunteina 43824
-time = 43824.0
 #kerätään valitun pelaajan lompakon rahamäärä
 def wallet(id):
     dbSearch.execute(f"select game.wallet from game where game.id = {id}")
@@ -95,9 +97,33 @@ def airports():
         # yllä etsittiin lentokenttien nimet ja tyypit ja säilöttiin ne tekiöihin mediumairport, smallairport ja largeairport
     #selvitetään mikä on seuraava maa
     dbSearch.execute(f"select country.name from airport,country where airport.iso_country = country.iso_country and gps_code = '{ICAO[-1]}'")
+    global nextCountry
     nextCountry = result()
-    print(f"In {currentCountry} can go to 2 different small airports: \n{airportTypes["smallairport"]} \nOr 2 different medium airports: \n{airportTypes["mediumairport"]} \nOr you can go to next level in {nextCountry}: \n{airportTypes["largeairport"]}")
+    print(f"In {currentCountry} can go to 2 different small airports: \n{textCleaner(airportTypes["smallairport"])} \nOr 2 different medium airports: \n{textCleaner(airportTypes["mediumairport"])} \nOr you can go to next level in {nextCountry}: \n{textCleaner(airportTypes["largeairport"])}")
     return airportTypes
+#liikkumis / move funktio, päivitetään databasen pelaajan olinpaikka pelaajan valitsemista vaihtoehdoista
+def move():
+    global nextCountry
+    player_move_prompt = int(input(f"Type: '1' , to move to next country {nextCountry} or type: '2' to move inside the country "))
+    new_location = dbSearch.execute(f"select gps_code from airport, country where airport.iso_country = country.iso_country and type ='large_airport' and country.name = '{nextCountry}'")
+    new_location = result()
+    islooping = True
+    while islooping:
+        if player_move_prompt == 1:
+            dbSearch.execute(f"update game set location = '{new_location}'")
+            islooping = False
+        elif player_move_prompt == 2:
+            events()
+            islooping = False
+        else:
+            print("Wrong option, try again")
+            player_move_prompt = int(input(f"Type: '1' , to move to next country {nextCountry} "))
+            break
+    return
+#maan sisällä liikkuminen eventeissä
+def events():
+    #PLACEHOLDER
+    print("You have chosen to move inside the country")
 #HAHMO FUNKTIOT!
 def Yrjö():
     dbSearch.execute("SELECT player FROM game WHERE player = 'Yrjö';")
@@ -117,13 +143,29 @@ def kim():
     dbSearch.execute("SELECT wallet FROM game WHERE player = 'Kim';")
     print(f"Wallet:",result())
     return
-#country() funktio ei tee muuta kun kutsu "player" muuttujan nimisen hahmon lokaation.
+def co2_emission():
+    #tarkoituksena laskea kuinka pitkä matka lentokenttien välillä
 
-def country():
-    ugly = dbSearch.fetchall()
-    selection = re.sub(r"[^\s+a-öA-ZÖ0-9ÄåÅøØ-]", "",str(ugly))
-    return selection
 
+    #mistä mennään
+    dbSearch.execute(f"select airport.name from airport,country, game where airport.iso_country = country.iso_country and game.location = airport.ident and player = '{player}'")
+    kentta1 = "Ministro Pistarini International Airport"
+    print(kentta1)
+
+    # minne mennään, hard codataan testin vuoksi austraalia
+    """
+    dbSearch.execute(f"select country.name from airport,country, game where airport.iso_country = country.iso_country and game.location = airport.ident and player = '{player}'")
+    kentta2 = tulos()
+    """
+    kentta2 = "Sydney Kingsford Smith International Air"
+    geolocator = Nominatim(user_agent="test")
+    location1 = geolocator.geocode(str(kentta1),timeout=7)
+    location2 = geolocator.geocode(str(kentta2),timeout=7)
+
+    kentta1 = location1.latitude, location1.longitude
+    kentta2 = location2.latitude, location2.longitude
+    lopputulos = geodesic(kentta1, kentta2)
+    print(lopputulos)
 #tähän pelaajaan sidonnainen id, laitan aluksi 1 (Yrjö) jotta en saisi erroria
 #onko pelaaja hävinnyt, looppia suoritetaan niin kauan, kun pelaaja ei ole hävinnyt
 game_is_playable = True
@@ -185,8 +227,11 @@ elif game == "N" or game == "n":
     exit()
 #Hahmo valittu koodi, pelin ALKU
 dbSearch.execute(f"SELECT airport.name as 'Airport' FROM airport, game WHERE location = ident and player = '{player}';")
-print(f"Welcome {player} to {country()}")
+print(f"Welcome {player} to {result()}")
 #character_select.py LOPPUU! exit ei enään toimi!
+
+#pelin lokaatio resettaa
+dbSearch.execute(f"update game set location = 'SAEZ'")
 
 #Looppi jossa pelin toiminnallisuus tapahtuu
 while True:
@@ -199,5 +244,8 @@ while True:
 
     if player_prompt == "move":
         airports()
+        #Tällä hetkellä liikutaan vain maiden välillä isoilla lentokentillä
+        #Mikäli pelaaja ei liiku, voi se suorittaa tapahtumia WIP
+        move()
     else:
         print("Wrong option, try again")
