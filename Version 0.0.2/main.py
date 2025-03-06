@@ -58,31 +58,34 @@ def co2_consumedUpdate(id,amount):
     #funktio vaatii kentokentän numeron jossa pelaaja on
 def airports():
     #Tiivistettynä tässä koodissa katsotaan minne eri paikkoihin pelaaja voi siitryä kyseisestä letokentästä ja printtaa vaihtoehdot
+    # käytetään lentokenttien nimiä myöhemmin koodissa
+    global airport_names
+    airport_names = []
     locations = {}
     #selvitetään missä maassa ollaan
     dbSearch.execute(f"select country.name from airport,country, game where airport.iso_country = country.iso_country and game.location = airport.ident and player = '{player}'")
     currentCountry = result()
     #asetetaan jokiaselle lentokentälle 2 pientä, 2 keskikokoista ja seuraavan maahan iso lentokentän ICAO koodi
     if currentCountry == "Argentina":
-        ICAO = ["SAAC", "SAAP", "SACC", "SAOI", "YSSY"]
+        ICAO = ["SAAC", "SAOI", "SACC", "SAAP", "YSSY"]
     elif currentCountry =="Australia":
-        ICAO = ["YBIE","YBWN","YBLA","YBOA","ZBAD"]
+        ICAO = ["YBOA","YBWN","YBLA","YBIE","ZMCK"]
+    elif currentCountry == "Mongolia":
+        ICAO = ["ZMUG", "ZMTG", "ZMMN", "ZMUB", "ZBAD"]
     elif currentCountry == "China":
-        ICAO = ["", "", "", "", ""]# Vasta 2 lentokenttää täytetty, muut myöhemmin kun on ajankontaista
-    elif currentCountry == "Germany":
-        ICAO = ["", "", "", "", ""]
-    elif currentCountry == "Luxembourg":
-        ICAO = ["", "", "", "", ""]
-    elif currentCountry =="Mongolia":
-         ICAO = ["", "", "", "", ""]
-    elif currentCountry == "Norway":
-        ICAO = ["", "", "", "", ""]
+        ICAO = ["ZBCZ", "ZGLD", "ZLGL", "ZYDD", "EDDF"]
+    elif currentCountry =="Germany":
+         ICAO = ["", "", "", "", "EPWA"]#Broken uwu
     elif currentCountry == "Poland":
-        ICAO = ["", "", "", "", ""]
+        ICAO = ["EPEL", "EPBA", "EPCE", "EPKT", "ELLX"]
+    elif currentCountry == "Luxembourg":
+        ICAO = ["ELNT", "ELUS", "ENGM"] #TODO tee funktio joka huomioi luxembpurgin lentokenttien puuttuvan määrän
+    elif currentCountry == "Norway":
+        ICAO = ["", "", "", "", "RKSI"]#boken
     elif currentCountry == "South Korea":
-        ICAO = ["", "", "", "", ""]
+        ICAO = ["RKTA", "RKTL", "RKNY", "RKTU", "KJFK"]
     elif currentCountry == "United States":
-        ICAO = ["", "", "", "", ""]
+        ICAO = ["", "", "", ""]#BROKEN HUOM TÄÄLLÄ VAIN 4 KENTTÄÄ
     else:
         print("Error 404")
     for i in ICAO:
@@ -90,6 +93,7 @@ def airports():
         var1 = result()
         dbSearch.execute(f"select airport.type from airport where gps_code = '{i}'")
         var2 = result()
+        list.append(airport_names,var1)
         locations.update({var1 : var2})
         airportTypes = {}
         for k, v in locations.items():
@@ -104,7 +108,7 @@ def airports():
 #liikkumis / move funktio, päivitetään databasen pelaajan olinpaikka pelaajan valitsemista vaihtoehdoista
 def move():
     global nextCountry
-    player_move_prompt = int(input(f"Type: '1' , to move to next country {nextCountry} or type: '2' to move inside the country "))
+    player_move_prompt = int(input(f"Type: '1' , to move to next country {nextCountry} or \ntype: '2' to move inside the country \n"))
     new_location = dbSearch.execute(f"select gps_code from airport, country where airport.iso_country = country.iso_country and type ='large_airport' and country.name = '{nextCountry}'")
     new_location = result()
     islooping = True
@@ -117,7 +121,7 @@ def move():
             islooping = False
         else:
             print("Wrong option, try again")
-            player_move_prompt = int(input(f"Type: '1' , to move to next country {nextCountry} "))
+            player_move_prompt = int(input(f"Type: '1' , to move to next country {nextCountry} \n"))
             break
     return
 #maan sisällä liikkuminen eventeissä
@@ -144,35 +148,49 @@ def kim():
     print(f"Wallet:",result())
     return
 def co2_emission():
-    #tarkoituksena laskea kuinka pitkä matka lentokenttien välillä
-
-
-    #mistä mennään
+    #etsii nykyisen pelaajan siainnin
     dbSearch.execute(f"select airport.name from airport,country, game where airport.iso_country = country.iso_country and game.location = airport.ident and player = '{player}'")
-    kentta1 = "Ministro Pistarini International Airport"
+    kentta1 = result()
     print(kentta1)
 
-    # minne mennään, hard codataan testin vuoksi austraalia
-    """
-    dbSearch.execute(f"select country.name from airport,country, game where airport.iso_country = country.iso_country and game.location = airport.ident and player = '{player}'")
-    kentta2 = tulos()
-    """
-    kentta2 = "Sydney Kingsford Smith International Air"
-    geolocator = Nominatim(user_agent="test")
-    location1 = geolocator.geocode(str(kentta1),timeout=7)
-    location2 = geolocator.geocode(str(kentta2),timeout=7)
+    # selvittää mikä on seuraava lentokenttä minne mennään
+    # TODO saa tähän pelaajan valitsema maa
+    #dbSearch.execute(f"select country.name from airport,country, game where airport.iso_country = country.iso_country and game.location = airport.ident and player = '{player}'")
 
-    kentta1 = location1.latitude, location1.longitude
-    kentta2 = location2.latitude, location2.longitude
-    lopputulos = geodesic(kentta1, kentta2)
-    print(lopputulos)
-#tähän pelaajaan sidonnainen id, laitan aluksi 1 (Yrjö) jotta en saisi erroria
+    #käytetään geopy selvittääksemme maiden latitude ja longtitude koordinaatit
+    kentta2 = tulos()
+    print(kentta2)
+    geolocator = Nominatim(user_agent="test")
+    location1 = geolocator.geocode(kentta1, timeout=7)
+    location2 = geolocator.geocode(kentta2, timeout=7)
+    print(location2)
+    print(location1)
+    latlong1 = location1.latitude, location1.longitude
+    latlong2 = location2.latitude, location2.longitude
+    #selvitetään maiden etäisyys latitudella ja longtitudella
+    distance = geodesic(latlong1, latlong2)
+    # muutetaan geopy:n muodosta float luvuksi
+    strdistance = str(distance)
+    # poistetaan km lopusta
+    totaldist = float(re.sub(r"[^0-9.]", "", strdistance))
+    # km to mile
+    totaldist = totaldist / 1.6
+    # 1 henkilön arvoiodut co2 päästöt per 1 maili
+    co2Randomizer = random.randint(150, 300)
+    # kerrotaan matka liikutuilla maileilla
+    co2 = totaldist * co2Randomizer
+    # mile to km
+    co2 = co2 * 1.6
+    # g to kg
+    co2 = co2 / 1000
+    # end result: co2 kg/km ja siirertään se databaseen
+    dbSearch.execute(f"update game set co2_consumed = co2_consumed + {co2} where player = {player}")
+
 #onko pelaaja hävinnyt, looppia suoritetaan niin kauan, kun pelaaja ei ole hävinnyt
 game_is_playable = True
 
 #tapahtuu kun pelin avaa ensimmäistä kertaa
 
-#character_select.py alkaa!
 #INTRO, game start. Kirjoita "exit" ja peli sammuu, pätee koko character selection osuuteen.
 game = input("Start the game? [Y/N] ")
 if game == "Y" or game == "y":
@@ -232,6 +250,10 @@ print(f"Welcome {player} to {result()}")
 
 #pelin lokaatio resettaa
 dbSearch.execute(f"update game set location = 'SAEZ'")
+#resettaa co2 mittarin
+dbSearch.execute(f"update game set co2_consumed = '0'")
+
+
 
 #Looppi jossa pelin toiminnallisuus tapahtuu
 while True:
