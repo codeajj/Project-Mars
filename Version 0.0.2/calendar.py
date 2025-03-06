@@ -41,8 +41,8 @@ while True:
         #Pelin häviäminen
         print("Game over")
         break
-#SEURAAVA OSIO ON VAIN TESTAUSTA VARTEN!!!!!!!!!!!!!!!!!!!!!!!!
     if player_prompt == "time" or player_prompt == "Time":
+        # SEURAAVA OSIO ON VAIN TESTAUSTA VARTEN!!!!!!!!!!!!!!!!!!!!!!!!
         print(f"You have {timeCall()} days left!")
     if player_prompt == "move" or player_prompt == "Move":
         movement = True
