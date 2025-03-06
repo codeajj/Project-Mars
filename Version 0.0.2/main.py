@@ -126,8 +126,43 @@ def move():
     return
 #maan sisällä liikkuminen eventeissä
 def events():
-    #PLACEHOLDER
-    print("You have chosen to move inside the country")
+#Sama rakenne kuin movessa
+#Näyttää pelaajalle nimet kahdesta pienestä ja kahdesta keskikokoisesta
+# lentokentästä johon liikkua
+# MAAN SISÄLLÄ
+    player_move_prompt_inside_country = int(input(f"""Type: '1' , to move to {airport_names[0]} or 
+Type: '2' , to move  to {airport_names[1]} or 
+Type: '3' , to move  to {airport_names[2]} or 
+Type: '4' , to move  to {airport_names[3]}\n """))
+
+#Ei ole vielä itse eventtejä joita tapahtuu kyseisissä lentokentissä
+    islooping = True
+    while islooping:
+        if player_move_prompt_inside_country == 1:
+
+            islooping = False
+        elif player_move_prompt_inside_country == 2:
+
+            islooping = False
+        elif player_move_prompt_inside_country == 3:
+
+            islooping = False
+        elif player_move_prompt_inside_country == 4:
+
+            islooping = False
+        else:
+            print("Wrong option, try again")
+            player_move_prompt_inside_country = int(input(f"""Type: '1' , to move to {airport_names[0]} or 
+            Type: '2' , to move  to {airport_names[1]} or 
+            Type: '3' , to move  to {airport_names[2]} or 
+            Type: '4' , to move  to {airport_names[3]}\n """))
+            break
+    return
+#Funktio kertomaan pelaajalle missä maassa ollaan
+def tell_location():
+    dbSearch.execute(f"select country.name from airport,country, game where airport.iso_country = country.iso_country and game.location = airport.ident and player = '{player}'")
+    currentCountry = result()
+    return print(f"Your current location is: {currentCountry} ")
 #HAHMO FUNKTIOT!
 def Yrjö():
     dbSearch.execute("SELECT player FROM game WHERE player = 'Yrjö';")
@@ -257,7 +292,7 @@ dbSearch.execute(f"update game set co2_consumed = '0'")
 
 #Looppi jossa pelin toiminnallisuus tapahtuu
 while True:
-    player_prompt = str(input('For move options, type: '"'move'"'. To exit game, type: '"'exit'"'.\n'))
+    player_prompt = str(input('For move options, type: '"'move'"'. \nFor current country location, type: '"'gps'"'. \nTo exit game, type: '"'exit'"'.\n'))
 
     if not game_is_playable or player_prompt == "exit":
         #Pelin häviäminen
@@ -269,5 +304,10 @@ while True:
         #Tällä hetkellä liikutaan vain maiden välillä isoilla lentokentillä
         #Mikäli pelaaja ei liiku, voi se suorittaa tapahtumia WIP
         move()
+
+    #Pelaaja voi katsoa nykyisen lokaation
+    elif player_prompt == "gps":
+        tell_location()
+
     else:
         print("Wrong option, try again")
