@@ -201,7 +201,6 @@ def co2_emission(secound_airport):
 #onko pelaaja hävinnyt, looppia suoritetaan niin kauan, kun pelaaja ei ole hävinnyt
 game_is_playable = True
 
-player = "Hasan"
 #tapahtuu kun pelin avaa ensimmäistä kertaa
 co2_emission("Dandong Langtou Airport")
 #INTRO, game start. Kirjoita "exit" ja peli sammuu, pätee koko character selection osuuteen.
