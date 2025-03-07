@@ -286,9 +286,13 @@ while True:
         game_is_playable = False
     player_prompt = str(input('For actions type '"'Help or ?'"'\n'))
 
-    if not game_is_playable or player_prompt in exitList:
+    if not game_is_playable:
         #Pelin häviäminen
         print("Game over")
+        break
+    if player_prompt in exitList:
+        #Pelaaja itse lopettaa
+        print("Bye bye!")
         break
 
     if player_prompt == "Move" or player_prompt == "move":
