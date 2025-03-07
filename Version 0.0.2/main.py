@@ -276,9 +276,7 @@ def co2_emission(secound_airport):
     dbSearch.execute(f"update game set co2_consumed = co2_consumed + {co2} where player = '{player}'")
 #onko pelaaja hävinnyt, looppia suoritetaan niin kauan, kun pelaaja ei ole hävinnyt
 game_is_playable = True
-
 #tapahtuu kun pelin avaa ensimmäistä kertaa
-co2_emission("Dandong Langtou Airport")
 #INTRO, game start. Kirjoita "exit" ja peli sammuu, pätee koko character selection osuuteen.
 game = input("Start the game? [Y/N] ")
 if game == "Y" or game == "y":
@@ -331,6 +329,7 @@ if game == "Y" or game == "y":
 elif game == "N" or game == "n":
     print("Bye bye!")
     exit()
+co2_emission("Dandong Langtou Airport")
 #Hahmo valittu koodi, pelin ALKU
 dbSearch.execute(f"SELECT airport.name as 'Airport' FROM airport, game WHERE location = ident and player = '{player}';")
 print(f"Welcome {player} to {result()}")
