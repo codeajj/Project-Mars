@@ -59,7 +59,7 @@ def co2_consumedUpdate(id,amount):
     where id = '{id}'
     """)
     #funktio vaatii kentokentän numeron jossa pelaaja on
-def airports(secound_airport):
+def airports():
     #Tiivistettynä tässä koodissa katsotaan minne eri paikkoihin pelaaja voi siitryä kyseisestä letokentästä ja printtaa vaihtoehdot
     # käytetään lentokenttien nimiä myöhemmin koodissa
     global airport_names
@@ -124,8 +124,7 @@ def move():
     while islooping:
         if player_move_prompt == 1:
             dbSearch.execute(f"update game set location = '{new_location}'")
-
-            airports("test")
+            main_airport_event()
             islooping = False
         elif player_move_prompt == 2:
             events()
@@ -169,6 +168,71 @@ Type: '4' , to move  to {airport_names[3]}\n """))
             Type: '4' , to move  to {airport_names[3]}\n """))
             break
     return
+#Kutsutaan pelin alussa (triggeröidäkseen ekan eventin) ja move():ssa, kun pelaaja
+# valitsee liikkuvansa päälentokentälle ja pakotetaan päälentokentän eventti pelaajalle
+def main_airport_event():
+    #Tänne eventtien otsikot
+    large_airport_events = [
+        "FIRST EVENT",
+        "SECOND EVENT",
+        "THIRD EVENT",
+        "FOURTH EVENT",
+        "FIFTH EVENT",
+        "SIXTH EVENT",
+        "SEVENTH EVENT",
+        "EIGHT EVENT",
+        "NINTH EVENT",
+        "TENTH EVENT",
+    ]
+    dbSearch.execute(f"select id from game where player = '{player}'")
+    current_player_id = result()
+
+    dbSearch.execute(f"select location from game where id ='{current_player_id}'")
+    current_location = result()
+
+    dbSearch.execute(f"select location from game, airport where game.location = airport.ident and airport.type = 'large_airport' and game.id = '{current_player_id}'")
+    check_current_large_airport = result()
+    if current_location == check_current_large_airport:
+        if check_current_large_airport == 'SAEZ':
+            # Ensimmäisen eventin toiminnallisuus
+            print(large_airport_events[0])
+            return
+        elif check_current_large_airport == 'YSSY':
+            # Toisen eventin toiminnallisuus
+            print(large_airport_events[1])
+            return
+        elif check_current_large_airport == 'ZMCK':
+            # Kolmannen eventin toiminnallisuus
+            print(large_airport_events[2])
+            return
+        elif check_current_large_airport == 'ZBAD':
+            # Neljännen eventin toiminnallisuus
+            print(large_airport_events[3])
+            return
+        elif check_current_large_airport == 'EDDF':
+            # Viidennen eventin toiminnallisuus
+            print(large_airport_events[4])
+            return
+        elif check_current_large_airport == 'EPWA':
+            # Kuudennen eventin toiminnallisuus
+            print(large_airport_events[5])
+            return
+        elif check_current_large_airport == 'ELLX':
+            # Seitsemännen eventin toiminnallisuus
+            print(large_airport_events[6])
+            return
+        elif check_current_large_airport == 'ENGM':
+            # Kahdeksannen eventin toiminnallisuus
+            print(large_airport_events[7])
+            return
+        elif check_current_large_airport == 'RKSI':
+            # Yhdeksännen eventin toiminnallisuus
+            print(large_airport_events[8])
+            return
+        elif check_current_large_airport == 'KJFK':
+            # Kymmenennen eventin toiminnallisuus
+            print(large_airport_events[9])
+            return
 #Funktio kertomaan pelaajalle missä maassa ollaan
 def tell_location():
     dbSearch.execute(f"select country.name from airport,country, game where airport.iso_country = country.iso_country and game.location = airport.ident and player = '{player}'")
@@ -193,18 +257,13 @@ def kim():
     dbSearch.execute("SELECT wallet FROM game WHERE player = 'Kim';")
     print(f"Wallet:",result())
     return
-def co2_emission():
+# vaatii 2 tietoa ennen kuin toimii: 1.toisen lentokentän nimen 2.pelaajan nimen
+def co2_emission(secound_airport):
     #etsii nykyisen pelaajan siainnin
     dbSearch.execute(f"select airport.name from airport,country, game where airport.iso_country = country.iso_country and game.location = airport.ident and player = '{player}'")
     kentta1 = result()
     print(kentta1)
-
-    # selvittää mikä on seuraava lentokenttä minne mennään
-    # TODO saa tähän pelaajan valitsema maa
-    #dbSearch.execute(f"select country.name from airport,country, game where airport.iso_country = country.iso_country and game.location = airport.ident and player = '{player}'")
-
-    #käytetään geopy selvittääksemme maiden latitude ja longtitude koordinaatit
-    kentta2 = result()
+    kentta2 = secound_airport
     print(kentta2)
     geolocator = Nominatim(user_agent="test")
     location1 = geolocator.geocode(kentta1, timeout=7)
@@ -230,7 +289,7 @@ def co2_emission():
     # g to kg
     co2 = co2 / 1000
     # end result: co2 kg/km ja siirertään se databaseen
-    dbSearch.execute(f"update game set co2_consumed = co2_consumed + {co2} where player = {player}")
+    dbSearch.execute(f"update game set co2_consumed = co2_consumed + {co2} where player = '{player}'")
 
 #onko pelaaja hävinnyt, looppia suoritetaan niin kauan, kun pelaaja ei ole hävinnyt
 game_is_playable = True
@@ -299,7 +358,7 @@ dbSearch.execute(f"update game set location = 'SAEZ'")
 #resettaa co2 mittarin
 dbSearch.execute(f"update game set co2_consumed = '0'")
 
-
+main_airport_event()
 
 #Looppi jossa pelin toiminnallisuus tapahtuu
 while True:
@@ -311,7 +370,7 @@ while True:
         break
 
     if player_prompt == "move":
-        airports("sus")
+        airports()
         #Tällä hetkellä liikutaan vain maiden välillä isoilla lentokentillä
         #Mikäli pelaaja ei liiku, voi se suorittaa tapahtumia WIP
         move()
