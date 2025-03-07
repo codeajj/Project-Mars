@@ -94,6 +94,7 @@ def move():
     while islooping:
         if player_move_prompt == 1:
             dbSearch.execute(f"update game set location = '{new_location}'")
+            timeupdate()
 
             airports()
             islooping = False
@@ -105,6 +106,15 @@ def move():
             player_move_prompt = int(input(f"Type: '1' to move to next country {nextCountry} \n"))
             break
     return
+
+def timeCall():
+    dbSearch.execute(f"select time from game where player = '{player}';")
+    time = result()
+    return int(time) #Pelaaja voi kutsua ajan ja tarkistaa kauan jäljellä!
+def timeupdate():
+    dbSearch.execute(f"update game set time = time - 1 where player = '{player}';")
+    return #Tämä miinustaa tietokannasta yhden päivän.
+
 #maan sisällä liikkuminen eventeissä
 def events():
     #Sama rakenne kuin movessa
@@ -143,7 +153,7 @@ def events():
 def tell_location():
     dbSearch.execute(f"select country.name from airport,country, game where airport.iso_country = country.iso_country and game.location = airport.ident and player = '{player}'")
     currentCountry = result()
-    return print(f"Your current location is: {currentCountry} ")
+    return print(f"Your current location is: {currentCountry}\n")
 #HAHMO FUNKTIOT!
 def Yrjö():
     dbSearch.execute("SELECT player FROM game WHERE player = 'Yrjö';")
@@ -200,7 +210,7 @@ def co2_emission(secound_airport):
     dbSearch.execute(f"update game set co2_consumed = co2_consumed + {co2} where player = '{player}'")
 #onko pelaaja hävinnyt, looppia suoritetaan niin kauan, kun pelaaja ei ole hävinnyt
 game_is_playable = True
-
+player = "Hasan"
 #tapahtuu kun pelin avaa ensimmäistä kertaa
 co2_emission("Dandong Langtou Airport")
 #INTRO, game start. Kirjoita "exit" ja peli sammuu, pätee koko character selection osuuteen.
@@ -265,27 +275,42 @@ dbSearch.execute(f"update game set location = 'SAEZ'")
 #resettaa co2 mittarin
 dbSearch.execute(f"update game set co2_consumed = '0'")
 
-
+exitList = {"Exit","exit", "Exit game","exit game", "Quit","quit", "Quit game","quit game"}
+gpsList = {"GPS","GPs","Gps","gps"}
+helpList = {"?","Help","help"}
 
 #Looppi jossa pelin toiminnallisuus tapahtuu
 while True:
-    player_prompt = str(input('For move options, type: '"'move'"'. \nFor current country location, type: '"'gps'"'. \nTo exit game, type: '"'exit'"'.\n'))
+    clock = timeCall()  # Pelin kello jolla lasketaan päiviä kunnes loppuu
+    if clock == -1:
+        game_is_playable = False
+    player_prompt = str(input('For actions type '"'Help or ?'"'\n'))
 
-    if not game_is_playable or player_prompt == "exit":
+    if not game_is_playable or player_prompt in exitList:
         #Pelin häviäminen
         print("Game over")
         break
 
-    if player_prompt == "move":
+    if player_prompt == "Move" or player_prompt == "move":
         #näyttää lentokenttien nimet minne pelaaja voi siirtyä
         airports()
         #Tällä hetkellä liikutaan vain maiden välillä isoilla lentokentillä
         #Mikäli pelaaja ei liiku, voi se suorittaa tapahtumia WIP
         move()
+    if player_prompt == "Time" or player_prompt == "time":
+        print(f"You have {timeCall()} days left!\n")
 
     #Pelaaja voi katsoa nykyisen lokaation
-    elif player_prompt == "gps":
+    elif player_prompt in gpsList:
         tell_location()
+
+    elif player_prompt in helpList:
+        print("""        Move
+        Time
+        GPS
+        
+        Quit game
+        """)
 
     else:
         print("Wrong option, try again")
