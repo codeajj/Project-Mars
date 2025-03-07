@@ -3,6 +3,9 @@ import re
 import time
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
+import random
+
+
 
 #yhdistetään mysql serveriimme
 project_mars = mysql.connector.connect(
@@ -56,7 +59,7 @@ def co2_consumedUpdate(id,amount):
     where id = '{id}'
     """)
     #funktio vaatii kentokentän numeron jossa pelaaja on
-def airports():
+def airports(secound_airport):
     #Tiivistettynä tässä koodissa katsotaan minne eri paikkoihin pelaaja voi siitryä kyseisestä letokentästä ja printtaa vaihtoehdot
     # käytetään lentokenttien nimiä myöhemmin koodissa
     global airport_names
@@ -75,17 +78,17 @@ def airports():
     elif currentCountry == "China":
         ICAO = ["ZBCZ", "ZGLD", "ZLGL", "ZYDD", "EDDF"]
     elif currentCountry =="Germany":
-         ICAO = ["", "", "", "", "EPWA"]#Broken uwu
+         ICAO = ["EDCS", "EDBP", "EDAC", "EDBM", "EPWA"]
     elif currentCountry == "Poland":
         ICAO = ["EPEL", "EPBA", "EPCE", "EPKT", "ELLX"]
     elif currentCountry == "Luxembourg":
         ICAO = ["ELNT", "ELUS", "ENGM"] #TODO tee funktio joka huomioi luxembpurgin lentokenttien puuttuvan määrän
     elif currentCountry == "Norway":
-        ICAO = ["", "", "", "", "RKSI"]#boken
+        ICAO = ["ESD", "ENSG", "ENAL", "ENSS", "RKSI"]
     elif currentCountry == "South Korea":
         ICAO = ["RKTA", "RKTL", "RKNY", "RKTU", "KJFK"]
     elif currentCountry == "United States":
-        ICAO = ["", "", "", ""]#BROKEN HUOM TÄÄLLÄ VAIN 4 KENTTÄÄ
+        ICAO = ["PALB", "PAUO", "KEGE", "KBSE","MARS"]#BROKEN HUOM TÄÄLLÄ VAIN 4 KENTTÄÄ
     else:
         print("Error 404")
     for i in ICAO:
@@ -103,25 +106,33 @@ def airports():
     dbSearch.execute(f"select country.name from airport,country where airport.iso_country = country.iso_country and gps_code = '{ICAO[-1]}'")
     global nextCountry
     nextCountry = result()
-    print(f"In {currentCountry} can go to 2 different small airports: \n{textCleaner(airportTypes["smallairport"])} \nOr 2 different medium airports: \n{textCleaner(airportTypes["mediumairport"])} \nOr you can go to next level in {nextCountry}: \n{textCleaner(airportTypes["largeairport"])}")
+    if currentCountry == "Luxembourg":
+        print(f"In {currentCountry} you can go to 2 different small airports: \n{textCleaner(airportTypes["smallairport"])} \nor to the next level in {nextCountry}: \n{textCleaner(airportTypes["largeairport"])}")
+    elif currentCountry == "United States":
+        print(f"In {currentCountry} you can go to 2 different small airports: \n{textCleaner(airportTypes["smallairport"])} \nOr to an different medium airport: \n{textCleaner(airportTypes["mediumairport"])} \nOr you can win the game by going to Mars")
+    else:
+        print(f"In {currentCountry} you can go to 2 different small airports: \n{textCleaner(airportTypes["smallairport"])} \nOr 2 different medium airports: \n{textCleaner(airportTypes["mediumairport"])} \nOr you can go to the next level in {nextCountry}: \n{textCleaner(airportTypes["largeairport"])}")
     return airportTypes
+
 #liikkumis / move funktio, päivitetään databasen pelaajan olinpaikka pelaajan valitsemista vaihtoehdoista
 def move():
     global nextCountry
-    player_move_prompt = int(input(f"Type: '1' , to move to next country {nextCountry} or \ntype: '2' to move inside the country \n"))
+    player_move_prompt = int(input(f"\nType: '1' to move to next country {nextCountry} or \ntype: '2' to move inside the country \n"))
     new_location = dbSearch.execute(f"select gps_code from airport, country where airport.iso_country = country.iso_country and type ='large_airport' and country.name = '{nextCountry}'")
     new_location = result()
     islooping = True
     while islooping:
         if player_move_prompt == 1:
             dbSearch.execute(f"update game set location = '{new_location}'")
+
+            airports("test")
             islooping = False
         elif player_move_prompt == 2:
             events()
             islooping = False
         else:
             print("Wrong option, try again")
-            player_move_prompt = int(input(f"Type: '1' , to move to next country {nextCountry} \n"))
+            player_move_prompt = int(input(f"Type: '1' to move to next country {nextCountry} \n"))
             break
     return
 #maan sisällä liikkuminen eventeissä
@@ -193,7 +204,7 @@ def co2_emission():
     #dbSearch.execute(f"select country.name from airport,country, game where airport.iso_country = country.iso_country and game.location = airport.ident and player = '{player}'")
 
     #käytetään geopy selvittääksemme maiden latitude ja longtitude koordinaatit
-    kentta2 = tulos()
+    kentta2 = result()
     print(kentta2)
     geolocator = Nominatim(user_agent="test")
     location1 = geolocator.geocode(kentta1, timeout=7)
@@ -300,7 +311,7 @@ while True:
         break
 
     if player_prompt == "move":
-        airports()
+        airports("sus")
         #Tällä hetkellä liikutaan vain maiden välillä isoilla lentokentillä
         #Mikäli pelaaja ei liiku, voi se suorittaa tapahtumia WIP
         move()
