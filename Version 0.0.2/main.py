@@ -87,7 +87,7 @@ def airports():
 #liikkumis / move funktio, päivitetään databasen pelaajan olinpaikka pelaajan valitsemista vaihtoehdoista
 def move():
     global nextCountry
-    player_move_prompt = int(input(f"\nType: '1' to move to next country {nextCountry} or \ntype: '2' to move inside the country \n"))
+    player_move_prompt = int(input(f"\nType: '1' to move to next country {nextCountry} or \ntype: '2' to move inside the country \nType '3' to cancel\n"))
     new_location = dbSearch.execute(f"select gps_code from airport, country where airport.iso_country = country.iso_country and type ='large_airport' and country.name = '{nextCountry}'")
     new_location = result()
     islooping = True
@@ -102,10 +102,14 @@ def move():
         elif player_move_prompt == 2:
             events()
             islooping = False
+
+        elif player_move_prompt == 3:
+            break
         else:
             print("Wrong option, try again")
-            player_move_prompt = int(input(f"Type: '1' to move to next country {nextCountry} \n"))
-            break
+            player_move_prompt = int(input(f"\nType: '1' to move to next country {nextCountry} or \ntype: '2' to move inside the country \nType '3' to cancel\n"))
+            if player_move_prompt == 3:
+                break
     return
 
 def timeCall():
@@ -343,6 +347,7 @@ dbSearch.execute(f"update game set co2_consumed = '0'")
 exitList = {"Exit","exit", "Exit game","exit game", "Quit","quit", "Quit game","quit game"}
 gpsList = {"GPS","GPs","Gps","gps"}
 helpList = {"?","Help","help"}
+moveList = ["1","2","3"] #Tää on vain kun pelaaja haluaa liikkua ja mainloop ei tunnista näitä niin printtaa "Incorrect..." ja nyt ne on mukana eikä anna sitä viestiä.
 main_airport_event()
 
 #Looppi jossa pelin toiminnallisuus tapahtuu
@@ -382,5 +387,5 @@ while True:
         Quit game
         """)
 
-    else:
-        print("Incorrect prompt, action not found please try again")
+    elif player_prompt not in moveList:
+        print("Incorrect prompt, action not found please try again") #TODO Selvitä miksi tämä viesti tulee joka kerta kun pelajaa liikkuu maasta toiseen.
