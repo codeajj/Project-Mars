@@ -14,7 +14,7 @@ project_mars = mysql.connector.connect(
   password="test",
   database="project_mars"
 )
-
+player = ""
 #tehdään hakuväline databaseen
 dbSearch = project_mars.cursor()
 
@@ -97,6 +97,7 @@ def move():
             timeupdate()
 
             airports()
+            main_airport_event()
             islooping = False
         elif player_move_prompt == 2:
             events()
@@ -149,6 +150,71 @@ def events():
             Type: '4' , to move  to {airport_names[3]}\n """))
             break
     return
+#Kutsutaan pelin alussa (triggeröidäkseen ekan eventin) ja move():ssa, kun pelaaja
+# valitsee liikkuvansa päälentokentälle ja pakotetaan päälentokentän eventti pelaajalle
+def main_airport_event():
+    #Tänne eventtien otsikot
+    large_airport_events = [
+        "FIRST EVENT",
+        "SECOND EVENT",
+        "THIRD EVENT",
+        "FOURTH EVENT",
+        "FIFTH EVENT",
+        "SIXTH EVENT",
+        "SEVENTH EVENT",
+        "EIGHT EVENT",
+        "NINTH EVENT",
+        "TENTH EVENT",
+    ]
+    dbSearch.execute(f"select id from game where player = '{player}'")
+    current_player_id = result()
+
+    dbSearch.execute(f"select location from game where id ='{current_player_id}'")
+    current_location = result()
+
+    dbSearch.execute(f"select location from game, airport where game.location = airport.ident and airport.type = 'large_airport' and game.id = '{current_player_id}'")
+    check_current_large_airport = result()
+    if current_location == check_current_large_airport:
+        if check_current_large_airport == 'SAEZ':
+            # Ensimmäisen eventin toiminnallisuus
+            print(large_airport_events[0])
+            return
+        elif check_current_large_airport == 'YSSY':
+            # Toisen eventin toiminnallisuus
+            print(large_airport_events[1])
+            return
+        elif check_current_large_airport == 'ZMCK':
+            # Kolmannen eventin toiminnallisuus
+            print(large_airport_events[2])
+            return
+        elif check_current_large_airport == 'ZBAD':
+            # Neljännen eventin toiminnallisuus
+            print(large_airport_events[3])
+            return
+        elif check_current_large_airport == 'EDDF':
+            # Viidennen eventin toiminnallisuus
+            print(large_airport_events[4])
+            return
+        elif check_current_large_airport == 'EPWA':
+            # Kuudennen eventin toiminnallisuus
+            print(large_airport_events[5])
+            return
+        elif check_current_large_airport == 'ELLX':
+            # Seitsemännen eventin toiminnallisuus
+            print(large_airport_events[6])
+            return
+        elif check_current_large_airport == 'ENGM':
+            # Kahdeksannen eventin toiminnallisuus
+            print(large_airport_events[7])
+            return
+        elif check_current_large_airport == 'RKSI':
+            # Yhdeksännen eventin toiminnallisuus
+            print(large_airport_events[8])
+            return
+        elif check_current_large_airport == 'KJFK':
+            # Kymmenennen eventin toiminnallisuus
+            print(large_airport_events[9])
+            return
 #Funktio kertomaan pelaajalle missä maassa ollaan
 def tell_location():
     dbSearch.execute(f"select country.name from airport,country, game where airport.iso_country = country.iso_country and game.location = airport.ident and player = '{player}'")
@@ -210,7 +276,7 @@ def co2_emission(secound_airport):
     dbSearch.execute(f"update game set co2_consumed = co2_consumed + {co2} where player = '{player}'")
 #onko pelaaja hävinnyt, looppia suoritetaan niin kauan, kun pelaaja ei ole hävinnyt
 game_is_playable = True
-player = "Hasan"
+
 #tapahtuu kun pelin avaa ensimmäistä kertaa
 co2_emission("Dandong Langtou Airport")
 #INTRO, game start. Kirjoita "exit" ja peli sammuu, pätee koko character selection osuuteen.
@@ -278,6 +344,7 @@ dbSearch.execute(f"update game set co2_consumed = '0'")
 exitList = {"Exit","exit", "Exit game","exit game", "Quit","quit", "Quit game","quit game"}
 gpsList = {"GPS","GPs","Gps","gps"}
 helpList = {"?","Help","help"}
+main_airport_event()
 
 #Looppi jossa pelin toiminnallisuus tapahtuu
 while True:
