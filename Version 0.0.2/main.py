@@ -14,7 +14,7 @@ project_mars = mysql.connector.connect(
   password="test",
   database="project_mars"
 )
-player = ""
+
 #tehdään hakuväline databaseen
 dbSearch = project_mars.cursor()
 
@@ -28,38 +28,8 @@ def result():
 def textCleaner(text): # toimii kuin resultin funktio, mutta tallentaa pilkut myös
     beatiful = re.sub(r"[^\s+a-öA-ZÖ,0-9ÄåÅøØ-]", "",str(text))
     return beatiful
-
-#kerätään valitun pelaajan lompakon rahamäärä
-def wallet(id):
-    dbSearch.execute(f"select game.wallet from game where game.id = {id}")
-    var = result()
-    return var
-#ottaa co2 määrän
-def co2_consumed(id):
-    dbSearch.execute(f"select game.co2_consumed from game where game.id = {id}")
-    var = result()
-    return var
-#selvittää pelaajan nykyisen lokaation ICAO koodin
-def location(id):
-    dbSearch.execute(f"select game.location from game where game.id = {id}")
-    var = result()
-    return var
-#päivittää lompakon
-def walletUpdate(id,amount):
-    dbSearch.execute(f"""
-    update game
-    set game.wallet = game.wallet + {amount}
-    where id ='{id}'
-""")
-#päivittää co2_päästöt
-def co2_consumedUpdate(id,amount):
-    dbSearch.execute(f"""
-    update game
-    set game.co2_consumed = game.co2_consumed + {amount}
-    where id = '{id}'
-    """)
-    #funktio vaatii kentokentän numeron jossa pelaaja on
-def airports(secound_airport):
+#selvittää liikuttavat lentokentät
+def airports():
     #Tiivistettynä tässä koodissa katsotaan minne eri paikkoihin pelaaja voi siitryä kyseisestä letokentästä ja printtaa vaihtoehdot
     # käytetään lentokenttien nimiä myöhemmin koodissa
     global airport_names
@@ -125,7 +95,7 @@ def move():
         if player_move_prompt == 1:
             dbSearch.execute(f"update game set location = '{new_location}'")
 
-            airports("test")
+            airports()
             islooping = False
         elif player_move_prompt == 2:
             events()
@@ -137,14 +107,14 @@ def move():
     return
 #maan sisällä liikkuminen eventeissä
 def events():
-#Sama rakenne kuin movessa
-#Näyttää pelaajalle nimet kahdesta pienestä ja kahdesta keskikokoisesta
-# lentokentästä johon liikkua
-# MAAN SISÄLLÄ
+    #Sama rakenne kuin movessa
+    #Näyttää pelaajalle nimet kahdesta pienestä ja kahdesta keskikokoisesta
+    # lentokentästä johon liikkua
+    # MAAN SISÄLLÄ
     player_move_prompt_inside_country = int(input(f"""Type: '1' , to move to {airport_names[0]} or 
-Type: '2' , to move  to {airport_names[1]} or 
-Type: '3' , to move  to {airport_names[2]} or 
-Type: '4' , to move  to {airport_names[3]}\n """))
+    Type: '2' , to move  to {airport_names[1]} or 
+    Type: '3' , to move  to {airport_names[2]} or 
+    Type: '4' , to move  to {airport_names[3]}\n """))
 
 #Ei ole vielä itse eventtejä joita tapahtuu kyseisissä lentokentissä
     islooping = True
@@ -193,18 +163,15 @@ def kim():
     dbSearch.execute("SELECT wallet FROM game WHERE player = 'Kim';")
     print(f"Wallet:",result())
     return
-def co2_emission():
+#co2 kalkulaattori
+
+# vaatii 2 tietoa ennen kuin toimii: 1.toisen lentokentän nimen 2.pelaajan nimen
+def co2_emission(secound_airport):
     #etsii nykyisen pelaajan siainnin
     dbSearch.execute(f"select airport.name from airport,country, game where airport.iso_country = country.iso_country and game.location = airport.ident and player = '{player}'")
     kentta1 = result()
     print(kentta1)
-
-    # selvittää mikä on seuraava lentokenttä minne mennään
-    # TODO saa tähän pelaajan valitsema maa
-    #dbSearch.execute(f"select country.name from airport,country, game where airport.iso_country = country.iso_country and game.location = airport.ident and player = '{player}'")
-
-    #käytetään geopy selvittääksemme maiden latitude ja longtitude koordinaatit
-    kentta2 = result()
+    kentta2 = secound_airport
     print(kentta2)
     geolocator = Nominatim(user_agent="test")
     location1 = geolocator.geocode(kentta1, timeout=7)
@@ -230,13 +197,13 @@ def co2_emission():
     # g to kg
     co2 = co2 / 1000
     # end result: co2 kg/km ja siirertään se databaseen
-    dbSearch.execute(f"update game set co2_consumed = co2_consumed + {co2} where player = {player}")
-
+    dbSearch.execute(f"update game set co2_consumed = co2_consumed + {co2} where player = '{player}'")
 #onko pelaaja hävinnyt, looppia suoritetaan niin kauan, kun pelaaja ei ole hävinnyt
 game_is_playable = True
 
+player = "Hasan"
 #tapahtuu kun pelin avaa ensimmäistä kertaa
-
+co2_emission("Dandong Langtou Airport")
 #INTRO, game start. Kirjoita "exit" ja peli sammuu, pätee koko character selection osuuteen.
 game = input("Start the game? [Y/N] ")
 if game == "Y" or game == "y":
@@ -311,7 +278,8 @@ while True:
         break
 
     if player_prompt == "move":
-        airports("sus")
+        #näyttää lentokenttien nimet minne pelaaja voi siirtyä
+        airports()
         #Tällä hetkellä liikutaan vain maiden välillä isoilla lentokentillä
         #Mikäli pelaaja ei liiku, voi se suorittaa tapahtumia WIP
         move()
