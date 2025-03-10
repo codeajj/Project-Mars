@@ -93,8 +93,11 @@ def move():
     islooping = True
     while islooping:
         if player_move_prompt == 1:
+            money = -500
+            move_confirm = input(f"{walletCheck()} Are you sure you want to buy this ticket ({money}) [Y/N] ")
             dbSearch.execute(f"update game set location = '{new_location}'")
             timeupdate()
+            walletUpdate(money)
 
             airports()
             main_airport_event()
@@ -105,11 +108,10 @@ def move():
 
         elif player_move_prompt == 3:
             break
+
         else:
             print("Wrong option, try again")
             player_move_prompt = int(input(f"\nType: '1' to move to next country {nextCountry} or \ntype: '2' to move inside the country \nType '3' to cancel\n"))
-            if player_move_prompt == 3:
-                break
     return
 
 def timeCall():
@@ -119,6 +121,16 @@ def timeCall():
 def timeupdate():
     dbSearch.execute(f"update game set time = time - 1 where player = '{player}';")
     return #Tämä miinustaa tietokannasta yhden päivän.
+
+#Raha update muuttaa SQL arvoja, raha check annetaan joka kerta ku pelaaja haluaa ja myös kun hän on ostamassa jotain!
+def walletUpdate(money): #MONEY muuttujalle pitää laittaa itse - tai + jotta saat aikomuksen toimimaan.
+    dbSearch.execute(f"update game set wallet = wallet {money} where player = '{player}';")
+    return
+
+def walletCheck():
+    dbSearch.execute(f"select wallet from game where player = '{player}';")
+    print(f"You have: {result()} money!")
+    return
 
 #maan sisällä liikkuminen eventeissä
 def events():
@@ -250,14 +262,10 @@ def co2_emission(secound_airport):
     #etsii nykyisen pelaajan siainnin
     dbSearch.execute(f"select airport.name from airport,country, game where airport.iso_country = country.iso_country and game.location = airport.ident and player = '{player}'")
     kentta1 = result()
-    print(kentta1)
     kentta2 = secound_airport
-    print(kentta2)
     geolocator = Nominatim(user_agent="test")
     location1 = geolocator.geocode(kentta1, timeout=7)
     location2 = geolocator.geocode(kentta2, timeout=7)
-    print(location2)
-    print(location1)
     latlong1 = location1.latitude, location1.longitude
     latlong2 = location2.latitude, location2.longitude
     #selvitetään maiden etäisyys latitudella ja longtitudella
@@ -347,7 +355,7 @@ dbSearch.execute(f"update game set co2_consumed = '0'")
 exitList = {"Exit","exit", "Exit game","exit game", "Quit","quit", "Quit game","quit game"}
 gpsList = {"GPS","GPs","Gps","gps"}
 helpList = {"?","Help","help"}
-moveList = ["1","2","3"] #Tää on vain kun pelaaja haluaa liikkua ja mainloop ei tunnista näitä niin printtaa "Incorrect..." ja nyt ne on mukana eikä anna sitä viestiä.
+moveList = {"1","2","3"} #Tää on vain kun pelaaja haluaa liikkua ja mainloop ei tunnista näitä niin printtaa "Incorrect..." ja nyt ne on mukana eikä anna sitä viestiä.
 main_airport_event()
 
 #Looppi jossa pelin toiminnallisuus tapahtuu
@@ -375,6 +383,9 @@ while True:
     if player_prompt == "Time" or player_prompt == "time":
         print(f"You have {timeCall()} days left!\n")
 
+    if player_prompt == "Wallet" or player_prompt == "wallet":
+        walletCheck()
+
     #Pelaaja voi katsoa nykyisen lokaation
     elif player_prompt in gpsList:
         tell_location()
@@ -382,10 +393,11 @@ while True:
     elif player_prompt in helpList:
         print("""        Move
         Time
+        Wallet
         GPS
         
         Quit game
         """)
 
     elif player_prompt not in moveList:
-        print("Incorrect prompt, action not found please try again") #TODO Selvitä miksi tämä viesti tulee joka kerta kun pelajaa liikkuu maasta toiseen.
+        print("Action not found!")
