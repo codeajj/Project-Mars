@@ -90,6 +90,9 @@ def move():
     new_location = dbSearch.execute(f"select gps_code from airport, country where airport.iso_country = country.iso_country and type ='large_airport' and country.name = '{nextCountry}'")
     new_location = result()
     co2_emission(new_location)
+    dbSearch.execute(f"select co2_consumed from game where player = '{player}'")
+    show_emissions = result()
+    print(f"Your total emissions increased to {show_emissions} ")
     islooping = True
     while islooping:
         if player_move_prompt == 1:
@@ -98,7 +101,7 @@ def move():
             dbSearch.execute(f"update game set location = '{new_location}'")
             timeupdate()
             walletUpdate(money)
-
+# TODO Paavo korjaa
             airports()
             main_airport_event()
             islooping = False
@@ -219,7 +222,7 @@ Type: '5' to leave!\n"""))
                 player_has_gone_to_events = True
                 break
             else:
-                print("Incorrect prompt, action not found please try again")
+                print("Action not found!")
     return
 # Kutsutaan pelin alussa (triggeröidäkseen ekan eventin) ja move():ssa, kun pelaaja
 # valitsee liikkuvansa päälentokentälle ja pakotetaan päälentokentän eventti pelaajalle
