@@ -15,7 +15,7 @@ project_mars = mysql.connector.connect(
   database="project_mars"
 )
 player = ""
-#tehdään hakuväline databaseen
+#tehdään hakuväline databaseen  dc
 dbSearch = project_mars.cursor()
 
 #tehdään databasesta tuloksen saaminen funktioksi:
@@ -90,6 +90,7 @@ def move():
     player_move_prompt = int(input(f"\nType: '1' to move to next country {nextCountry} or \ntype: '2' to move inside the country \nType '3' to cancel\n"))
     new_location = dbSearch.execute(f"select gps_code from airport, country where airport.iso_country = country.iso_country and type ='large_airport' and country.name = '{nextCountry}'")
     new_location = result()
+    co2_emission(new_location)
     islooping = True
     while islooping:
         if player_move_prompt == 1:
@@ -285,7 +286,7 @@ def co2_emission(secound_airport):
     # g to kg
     co2 = co2 / 1000
     # end result: co2 kg/km ja siirertään se databaseen
-    dbSearch.execute(f"update game set co2_consumed = co2_consumed + {co2} where player = '{player}'")
+    dbSearch.execute(f"update game set co2_consumed = co2_consumed + {co2:.1f} where player = '{player}'")
 #onko pelaaja hävinnyt, looppia suoritetaan niin kauan, kun pelaaja ei ole hävinnyt
 game_is_playable = True
 #tapahtuu kun pelin avaa ensimmäistä kertaa
@@ -341,7 +342,6 @@ if game == "Y" or game == "y":
 elif game == "N" or game == "n":
     print("Bye bye!")
     exit()
-co2_emission("Dandong Langtou Airport")
 #Hahmo valittu koodi, pelin ALKU
 dbSearch.execute(f"SELECT airport.name as 'Airport' FROM airport, game WHERE location = ident and player = '{player}';")
 print(f"Welcome {player} to {result()}")
@@ -355,7 +355,7 @@ dbSearch.execute(f"update game set co2_consumed = '0'")
 exitList = {"Exit","exit", "Exit game","exit game", "Quit","quit", "Quit game","quit game"}
 gpsList = {"GPS","GPs","Gps","gps"}
 helpList = {"?","Help","help"}
-moveList = {"1","2","3"} #Tää on vain kun pelaaja haluaa liikkua ja mainloop ei tunnista näitä niin printtaa "Incorrect..." ja nyt ne on mukana eikä anna sitä viestiä.
+moveList = {"1","2","3","move","Move"} #Tää on vain kun pelaaja haluaa liikkua ja mainloop ei tunnista näitä niin printtaa "Incorrect..." ja nyt ne on mukana eikä anna sitä viestiä.
 main_airport_event()
 
 #Looppi jossa pelin toiminnallisuus tapahtuu
