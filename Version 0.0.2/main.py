@@ -89,13 +89,13 @@ def move():
     player_move_prompt = int(input(f"\nType: '1' to move to next country {nextCountry} or \ntype: '2' to move inside the country \nType '3' to cancel\n"))
     new_location = dbSearch.execute(f"select gps_code from airport, country where airport.iso_country = country.iso_country and type ='large_airport' and country.name = '{nextCountry}'")
     new_location = result()
-    co2_emission(new_location)
-    dbSearch.execute(f"select co2_consumed from game where player = '{player}'")
-    show_emissions = result()
-    print(f"Your total emissions increased to {show_emissions} ")
     islooping = True
     while islooping:
         if player_move_prompt == 1:
+            co2_emission(new_location)
+            dbSearch.execute(f"select co2_consumed from game where player = '{player}'")
+            show_emissions = result()
+            print(f"Your total emissions increased to {show_emissions} ")
             money = -500
             move_confirm = input(f"{walletCheck()} Are you sure you want to buy this ticket ({money}) [Y/N] ")
             dbSearch.execute(f"update game set location = '{new_location}'")
