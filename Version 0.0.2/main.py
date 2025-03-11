@@ -102,8 +102,8 @@ def move():
             timeupdate()
             walletUpdate(money)
 # TODO Paavo korjaa
-            airports()
             main_airport_event()
+            airports()
             islooping = False
         elif player_move_prompt == 2:
             events()
