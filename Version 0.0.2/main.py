@@ -14,6 +14,8 @@ project_mars = mysql.connector.connect(
 )
 player = ""
 player_has_gone_to_events = False
+#voiko pelaaja mennä marsiin
+mars_condition = False
 # tehdään hakuväline databaseen
 dbSearch = project_mars.cursor()
 
@@ -24,11 +26,16 @@ def result():
     beatiful = re.sub(r"[^\s+a-öA-ZÖ0-9ÄåÅøØ-]", "",str(ugly))
     return beatiful
 
+def co2_total():
+    dbSearch.execute(f"select co2_consumed from game where player = '{player}'")
+    return result()
+
 def textCleaner(text): # toimii kuin resultin funktio, mutta tallentaa pilkut myös
     beatiful = re.sub(r"[^\s+a-öA-ZÖ,0-9ÄåÅøØ-]", "",str(text))
     return beatiful
 #selvittää liikuttavat lentokentät
 def airports():
+    global mars_condition
     # Tiivistettynä tässä koodissa katsotaan minne eri paikkoihin pelaaja voi siitryä kyseisestä letokentästä ja printtaa vaihtoehdot
     # käytetään lentokenttien nimiä myöhemmin koodissa
     global airport_names
@@ -79,6 +86,7 @@ def airports():
         print(f"In {currentCountry} you can go to 2 different small airports: \n{textCleaner(airportTypes["smallairport"])} \nor to the next level in {nextCountry}: \n{textCleaner(airportTypes["largeairport"])}")
     elif currentCountry == "United States":
         print(f"In {currentCountry} you can go to 2 different small airports: \n{textCleaner(airportTypes["smallairport"])} \nOr to an different medium airport: \n{textCleaner(airportTypes["mediumairport"])} \nOr you can win the game by going to Mars")
+        mars_condition = True
     else:
         print(f"In {currentCountry} you can go to 2 different small airports: \n{textCleaner(airportTypes["smallairport"])} \nOr 2 different medium airports: \n{textCleaner(airportTypes["mediumairport"])} \nOr you can go to the next level in {nextCountry}: \n{textCleaner(airportTypes["largeairport"])}")
     return airportTypes
@@ -347,6 +355,43 @@ def co2_emission(secound_airport):
     co2 = co2 / 1000
     # end result: co2 kg/km ja siirertään se databaseen
     dbSearch.execute(f"update game set co2_consumed = co2_consumed + {co2:.1f} where player = '{player}'")
+
+#Tilapäinen koodi pelin lopulle demossa
+def Mars():
+    global game_is_playable
+    has_moved = False
+    while True:
+        mars_move = int(input("Type: '1' to go to Mars or\nType: '2' to return to events\n"))
+        if mars_move == 1:
+            while True:
+                mars_move_check = input("It will cost 1 000 000. Type 'Y' to pay or\nType: 'N' to cancel\n")
+                if mars_move_check == "Y":
+                    walletCheck()
+                    money = -1000000
+                    walletUpdate(money)
+                    print("You paid and now:")
+                    walletCheck()
+                    has_moved = True
+                    break
+                elif mars_move_check == "N":
+                    break
+                else:
+                    print("Action not found!")
+            if has_moved:
+                game_is_playable = False
+                co2_used = co2_total()
+                print(f"Your total co2 consumption was {co2_used}")
+                print("END OF DEMO")
+                break
+        elif mars_move == 2:
+            print("Returning...\n")
+            print("Moving inside country implementation...\n")
+            events()
+            return
+        else:
+            print("Action not found!")
+    return
+
 #onko pelaaja hävinnyt, looppia suoritetaan niin kauan, kun pelaaja ei ole hävinnyt
 game_is_playable = True
 # tapahtuu kun pelin avaa ensimmäistä kertaa
@@ -423,28 +468,36 @@ while True:
     clock = timeCall()  # Pelin kello jolla lasketaan päiviä kunnes loppuu
     if clock == -1:
         game_is_playable = False
-    player_prompt = str(input('For actions type '"'Help or ?'"'\n'))
 
     if not game_is_playable:
         # Pelin häviäminen
         print("Game over")
         break
+    player_prompt = str(input('For actions type '"'Help or ?'"'\n'))
+
     if player_prompt in exitList:
         # Pelaaja itse lopettaa
         print("Bye bye!")
         break
 
     if player_prompt == "Move" or player_prompt == "move":
-        # näyttää lentokenttien nimet minne pelaaja voi siirtyä
-        airports()
-        # Tällä hetkellä liikutaan vain maiden välillä isoilla lentokentillä
-        # Mikäli pelaaja ei liiku, voi se suorittaa tapahtumia WIP
-        move()
+        if mars_condition:
+            Mars()
+
+        if not mars_condition:
+            # näyttää lentokenttien nimet minne pelaaja voi siirtyä
+            airports()
+            # Tällä hetkellä liikutaan vain maiden välillä isoilla lentokentillä
+            # Mikäli pelaaja ei liiku, voi se suorittaa tapahtumia WIP
+            move()
     if player_prompt == "Time" or player_prompt == "time":
         print(f"You have {timeCall()} days left!\n")
 
     if player_prompt == "Wallet" or player_prompt == "wallet":
         walletCheck()
+
+    if player_prompt == "co2" or "Co2" or "CO2" or "C02":
+        co2_total()
 
     # Pelaaja voi katsoa nykyisen lokaation
     elif player_prompt in gpsList:
