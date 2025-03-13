@@ -206,6 +206,7 @@ Type: '5' to leave!\n""").replace(" ", "").replace(" ", "")
                 print(f"Your total emissions increased to {show_emissions} ")
                 place1_state = "OPTION USED"
                 place1_option = 0
+                break
             elif player_chosen_place == place2_option:
                 # EKAN MAAN ('SAOI') EVENTTI TULEE TÄHÄN
                 print(f"You have arrived in {place2_state}.")
@@ -215,6 +216,7 @@ Type: '5' to leave!\n""").replace(" ", "").replace(" ", "")
                 print(f"Your total emissions increased to {show_emissions} ")
                 place2_state = "OPTION USED"
                 place2_option = 0
+                break
             elif player_chosen_place == place3_option:
                 # EKAN MAAN ('SACC') EVENTTI TULEE TÄHÄN
                 print(f"You have arrived in {place3_state}.")
@@ -224,6 +226,7 @@ Type: '5' to leave!\n""").replace(" ", "").replace(" ", "")
                 print(f"Your total emissions increased to {show_emissions} ")
                 place3_state = "OPTION USED"
                 place3_option = 0
+                break
             elif player_chosen_place == place4_option:
                 # EKAN MAAN ('SAAP') EVENTTI TULEE TÄHÄN
                 print(f"You have arrived in {place4_state}.")
@@ -233,6 +236,7 @@ Type: '5' to leave!\n""").replace(" ", "").replace(" ", "")
                 print(f"Your total emissions increased to {show_emissions} ")
                 place4_state = "OPTION USED"
                 place4_option = 0
+                break
             elif player_chosen_place == "5":
                 print("You have left from inside country events\n")
                 player_has_gone_to_events = True
