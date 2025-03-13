@@ -5,7 +5,6 @@ from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
 import random
 import pyautogui
-from functions import *
 
 # yhdistetään mysql serveriimme
 project_mars = mysql.connector.connect(
@@ -21,7 +20,6 @@ mars_condition = False
 # tehdään hakuväline databaseen
 dbSearch = project_mars.cursor()
 
-#tehdään databasesta tuloksen saaminen funktioksi:
 def result():
     ugly = dbSearch.fetchall()
     #Poistaa kaiken paitsi 1 välilyönnin a-ö krijaimet, A-Z kirjaimet ,ison Ö:n, ison Ä:N, ruotsalainen å kirjain ,norjalainen ö kirjain, viivan
@@ -135,6 +133,10 @@ def move():
             player_move_prompt = input(f"\nType: '1' to move to next country {nextCountry} or \ntype: '2' to move inside the country \nType '3' to cancel\n").replace(" ", "")
     return
 
+def timeCall():
+    dbSearch.execute(f"select time from game where player = '{player}';")
+    time = result()
+    return int(time) # Pelaaja voi kutsua ajan ja tarkistaa kauan jäljellä!
 def timeupdate():
     dbSearch.execute(f"update game set time = time - 1 where player = '{player}';")
     return # Tämä miinustaa tietokannasta yhden päivän.
@@ -400,148 +402,3 @@ def Mars():
         else:
             print("Action not found!")
     return
-
-#onko pelaaja hävinnyt, looppia suoritetaan niin kauan, kun pelaaja ei ole hävinnyt
-game_is_playable = True
-# tapahtuu kun pelin avaa ensimmäistä kertaa
-# INTRO, game start. Kirjoita "exit" ja peli sammuu, pätee koko character selection osuuteen.
-
-game = input("Start the game? [Y/N] ").replace(" ", "")
-if game == "Y" or game == "y":
-    clear()
-    print("Welcome to Project Mars Demo!")
-    print("You have three difficulties, each with a different character!")
-
-    print("""
-          1. Normal
-
-          2. Hard
-
-          3. Extreme!
-    """)
-
-    diff = input("Choose your difficulty: ").replace(" ", "")
-    # Vaikeustason valinta, printtaa hahmo fuktiot ja asettaa "player" muuttujan hahmoksi. LOOP!
-    while diff != "1" or diff != "2" or diff != "3":
-
-        if diff == "1":
-            Yrjö()
-            confirm = input("Do you want to continue? [Y/N] ").replace(" ", "")
-            if confirm == "Y" or confirm == "y":
-                player = "Yrjö"
-                break
-            elif confirm == "N" or confirm == "n":
-                diff = input("Choose your difficulty: ")
-        elif diff == "2":
-            Hasan()
-            confirm = input("Do you want to continue? [Y/N] ").replace(" ", "")
-            if confirm == "Y" or confirm == "y":
-                player = "Hasan"
-                break
-            elif confirm == "N" or confirm == "n":
-                diff = input("Choose your difficulty: ").replace(" ", "")
-
-        elif diff == "3":
-            kim()
-            confirm = input("Do you want to continue? [Y/N] ").replace(" ", "")
-            if confirm == "Y" or confirm == "y":
-                player = "Kim"
-                break
-            elif confirm == "N" or confirm == "n":
-                diff = input("Choose your difficulty: ").replace(" ", "")
-        elif diff == "Exit" or diff == "exit":
-            exit()
-
-        else:
-            print("Try writing 1, 2 or 3")
-            diff = input("Choose your difficulty: ").replace(" ", "")
-elif game == "N" or game == "n":
-    print("Bye bye!")
-    exit()
-#Hahmo valittu koodi, pelin ALKU
-# character_select.py LOPPUU! exit ei enään toimi!
-
-# pelin lokaatio resettaa
-dbSearch.execute(f"update game set location = 'SAEZ'")
-# resettaa co2 mittarin
-dbSearch.execute(f"update game set co2_consumed = '0'")
-
-exitList = {"Exit","exit", "Exit game","exit game", "Quit","quit", "Quit game","quit game"}
-gpsList = {"GPS","GPs","Gps","gps"}
-helpList = {"?","Help","help"}
-moveList = {"1","2","3","move","Move"} #Tää on vain kun pelaaja haluaa liikkua ja mainloop ei tunnista näitä niin printtaa "Incorrect..." ja nyt ne on mukana eikä anna sitä viestiä.
-co2List = {"co2", "Co2", "CO2", "c02", "C02"}
-
-
-clear()
-time.sleep(2)
-print("It is 1st of December 2077")
-time.sleep(3)
-print("The world is about to fall\nClimate change might be irreversible.")
-time.sleep(3)
-print("Our only escape is space.")
-time.sleep(3)
-print(f"The last launch to Mars leaves in {timeCall()} days.")
-time.sleep(3)
-print("You have to reach America and sum up one MILLION dollars to pay for the ticket.")
-time.sleep(3)
-tell_location()
-time.sleep(3)
-print("Are you worthy of this master race?")
-time.sleep(4)
-clear()
-
-# Looppi jossa pelin toiminnallisuus tapahtuu
-while True:
-    clock = timeCall()  # Pelin kello jolla lasketaan päiviä kunnes loppuu
-    if clock == -1:
-        game_is_playable = False
-
-    elif not game_is_playable:
-        # Pelin häviäminen
-        print("Game over")
-        break
-    player_prompt = str(input('For actions type '"'Help or ?'"'\n')).replace(" ", "")
-
-    if player_prompt in exitList:
-        # Pelaaja itse lopettaa
-        print("Bye bye!")
-        break
-
-    elif player_prompt == "Move" or player_prompt == "move":
-        if mars_condition:
-            Mars()
-
-        if not mars_condition:
-            # näyttää lentokenttien nimet minne pelaaja voi siirtyä
-            airports()
-            # Tällä hetkellä liikutaan vain maiden välillä isoilla lentokentillä
-            # Mikäli pelaaja ei liiku, voi se suorittaa tapahtumia WIP
-            move()
-    elif player_prompt == "Time" or player_prompt == "time":
-        print(f"You have {timeCall()} days left!\n")
-
-    elif player_prompt == "Wallet" or player_prompt == "wallet":
-        walletCheck()
-
-    elif player_prompt in co2List:
-        co2_total()
-
-    elif player_prompt == "Clear" or player_prompt == "clear":
-        clear_prompt = input("This action removes all previus text.\nAre you sure? [Y/N] ")
-        if clear_prompt == "Y" or clear_prompt == "y":
-            clear()
-
-    # Pelaaja voi katsoa nykyisen lokaation
-    elif player_prompt in gpsList:
-        tell_location()
-
-    elif player_prompt in helpList:
-        print("""        Move
-        Time
-        Wallet
-        GPS
-        Co2
-        Clear
-        Quit game
-        """)
