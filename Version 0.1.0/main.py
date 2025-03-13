@@ -5,7 +5,6 @@ from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
 import random
 import pyautogui
-from functions import *
 
 # yhdistetään mysql serveriimme
 project_mars = mysql.connector.connect(
@@ -134,7 +133,10 @@ def move():
             print("Wrong option, try again")
             player_move_prompt = input(f"\nType: '1' to move to next country {nextCountry} or \ntype: '2' to move inside the country \nType '3' to cancel\n").replace(" ", "")
     return
-
+def timeCall():
+    dbSearch.execute(f"select time from game where player = '{player}';")
+    time = result()
+    return int(time) # Pelaaja voi kutsua ajan ja tarkistaa kauan jäljellä!
 def timeupdate():
     dbSearch.execute(f"update game set time = time - 1 where player = '{player}';")
     return # Tämä miinustaa tietokannasta yhden päivän.
