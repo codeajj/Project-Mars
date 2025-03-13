@@ -192,16 +192,16 @@ def events():
             place2_state = local_airport_names[1]
             place3_state = local_airport_names[2]
             place4_state = local_airport_names[3]
-            place1_option = 1
-            place2_option = 2
-            place3_option = 3
-            place4_option = 4
+            place1_option = "1"
+            place2_option = "2"
+            place3_option = "3"
+            place4_option = "4"
         while True:
-            player_chosen_place = int(input(f"""\nType: '1' to go to {place1_state} or\n
+            player_chosen_place = input(f"""\nType: '1' to go to {place1_state} or\n
 Type: '2' to go to {place2_state} or\n
 Type: '3' to go to {place3_state} or\n
 Type: '4' to go to {place4_state} or\n
-Type: '5' to leave!\n""")).replace(" ", "")
+Type: '5' to leave!\n""").replace(" ", "").replace(" ", "")
             if player_chosen_place == place1_option:
                 #EKAN MAAN ('SAAC') EVENTTI TULEE TÄHÄN
                 print(f"You have arrived in {place1_state}.")
@@ -238,7 +238,7 @@ Type: '5' to leave!\n""")).replace(" ", "")
                 print(f"Your total emissions increased to {show_emissions} ")
                 place4_state = "OPTION USED"
                 place4_option = 0
-            elif player_chosen_place == 5:
+            elif player_chosen_place == "5":
                 print("You have left from inside country events\n")
                 player_has_gone_to_events = True
                 break
