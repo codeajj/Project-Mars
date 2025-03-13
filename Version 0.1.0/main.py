@@ -371,8 +371,8 @@ def Mars():
     global game_is_playable
     has_moved = False
     while True:
-        mars_move = int(input("Type: '1' to go to Mars or\nType: '2' to return to events\n")).replace(" ", "")
-        if mars_move == 1:
+        mars_move = input("Type: '1' to go to Mars or\nType: '2' to return to events\n").replace(" ", "")
+        if mars_move == "1":
             while True:
                 mars_move_check = input("It will cost 1 000 000. Type 'Y' to pay or\nType: 'N' to cancel\n").replace(" ", "")
                 if mars_move_check == "Y":
@@ -393,7 +393,7 @@ def Mars():
                 print(f"Your total co2 consumption was {co2_used}")
                 print("END OF DEMO")
                 break
-        elif mars_move == 2:
+        elif mars_move == "2":
             print("Returning...\n")
             print("Moving inside country implementation...\n")
             events()
@@ -471,6 +471,8 @@ exitList = {"Exit","exit", "Exit game","exit game", "Quit","quit", "Quit game","
 gpsList = {"GPS","GPs","Gps","gps"}
 helpList = {"?","Help","help"}
 moveList = {"1","2","3","move","Move"} #Tää on vain kun pelaaja haluaa liikkua ja mainloop ei tunnista näitä niin printtaa "Incorrect..." ja nyt ne on mukana eikä anna sitä viestiä.
+co2List = {"co2", "Co2", "CO2", "c02", "C02"}
+
 
 clear()
 time.sleep(2)
@@ -545,5 +547,5 @@ while True:
         Quit game
         """)
 
-    else:
+    elif player_prompt not in moveList or player_prompt not in gpsList or player_prompt not in helpList or player_prompt not in exitList or player_prompt not in co2List:
         print("Action not found!")
