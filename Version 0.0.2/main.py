@@ -4,6 +4,7 @@ import time
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
 import random
+import pyautogui
 
 # yhdistetään mysql serveriimme
 project_mars = mysql.connector.connect(
@@ -18,6 +19,12 @@ player_has_gone_to_events = False
 mars_condition = False
 # tehdään hakuväline databaseen
 dbSearch = project_mars.cursor()
+
+def textClear():
+    if name == 'nt':
+        _ = system('cls')
+    else:
+        _ = system('clear')
 
 #tehdään databasesta tuloksen saaminen funktioksi:
 def result():
@@ -94,35 +101,41 @@ def airports():
 # liikkumis / move funktio, päivitetään databasen pelaajan olinpaikka pelaajan valitsemista vaihtoehdoista
 def move():
     global nextCountry
-    player_move_prompt = int(input(f"\nType: '1' to move to next country {nextCountry} or \ntype: '2' to move inside the country \nType '3' to cancel\n"))
+    player_move_prompt = input(f"\nType: '1' to move to next country {nextCountry} or \ntype: '2' to move inside the country \nType '3' to cancel\n").replace(" ", "")
     new_location = dbSearch.execute(f"select gps_code from airport, country where airport.iso_country = country.iso_country and type ='large_airport' and country.name = '{nextCountry}'")
     new_location = result()
     islooping = True
     while islooping:
-        if player_move_prompt == 1:
-            co2_emission(new_location)
-            dbSearch.execute(f"select co2_consumed from game where player = '{player}'")
-            show_emissions = result()
-            print(f"Your total emissions increased to {show_emissions} ")
+        if player_move_prompt == "1":
             money = -500
-            move_confirm = input(f"{walletCheck()} Are you sure you want to buy this ticket ({money}) [Y/N] ")
-            dbSearch.execute(f"update game set location = '{new_location}'")
-            timeupdate()
-            walletUpdate(money)
-# TODO Paavo korjaa
-            main_airport_event()
-            airports()
+            move_confirm = input(f"{walletCheck()} Are you sure you want to buy this ticket ({money}) [Y/N] ").replace(" ", "")
+            if move_confirm == "Y" or move_confirm == "y":
+                co2_emission(new_location)
+                dbSearch.execute(f"select co2_consumed from game where player = '{player}'")
+                show_emissions = result()
+                print(f"Your total emissions increased to {show_emissions} ")
+                walletUpdate(money)
+                dbSearch.execute(f"update game set location = '{new_location}'")
+                timeupdate()
+                main_airport_event()
+                airports()
+            if move_confirm == "N" or move_confirm == "n":
+                break
+            else:
+                print("Action not found!")
+                continue
+
             islooping = False
-        elif player_move_prompt == 2:
+        elif player_move_prompt == "2":
             events()
             islooping = False
 
-        elif player_move_prompt == 3:
+        elif player_move_prompt == "3":
             break
 
         else:
             print("Wrong option, try again")
-            player_move_prompt = int(input(f"\nType: '1' to move to next country {nextCountry} or \ntype: '2' to move inside the country \nType '3' to cancel\n"))
+            player_move_prompt = input(f"\nType: '1' to move to next country {nextCountry} or \ntype: '2' to move inside the country \nType '3' to cancel\n").replace(" ", "")
     return
 
 def timeCall():
@@ -188,7 +201,7 @@ def events():
 Type: '2' to go to {place2_state} or\n
 Type: '3' to go to {place3_state} or\n
 Type: '4' to go to {place4_state} or\n
-Type: '5' to leave!\n"""))
+Type: '5' to leave!\n""")).replace(" ", "")
             if player_chosen_place == place1_option:
                 #EKAN MAAN ('SAAC') EVENTTI TULEE TÄHÄN
                 print(f"You have arrived in {place1_state}.")
@@ -325,6 +338,9 @@ def kim():
     print(f"Wallet:", result())
     return
 
+def clear(): #Tämä poistaa tekstit konsolista.
+    pyautogui.hotkey("ctrl", "shift", "n")
+
 #co2 kalkulaattori
 # vaatii 2 tietoa ennen kuin toimii: 1.toisen lentokentän nimen 2.pelaajan nimen
 def co2_emission(secound_airport):
@@ -361,10 +377,10 @@ def Mars():
     global game_is_playable
     has_moved = False
     while True:
-        mars_move = int(input("Type: '1' to go to Mars or\nType: '2' to return to events\n"))
+        mars_move = int(input("Type: '1' to go to Mars or\nType: '2' to return to events\n")).replace(" ", "")
         if mars_move == 1:
             while True:
-                mars_move_check = input("It will cost 1 000 000. Type 'Y' to pay or\nType: 'N' to cancel\n")
+                mars_move_check = input("It will cost 1 000 000. Type 'Y' to pay or\nType: 'N' to cancel\n").replace(" ", "")
                 if mars_move_check == "Y":
                     walletCheck()
                     money = -1000000
@@ -396,8 +412,10 @@ def Mars():
 game_is_playable = True
 # tapahtuu kun pelin avaa ensimmäistä kertaa
 # INTRO, game start. Kirjoita "exit" ja peli sammuu, pätee koko character selection osuuteen.
-game = input("Start the game? [Y/N] ")
+
+game = input("Start the game? [Y/N] ").replace(" ", "")
 if game == "Y" or game == "y":
+    clear()
     print("Welcome to Project Mars Demo!")
     print("You have three difficulties, each with a different character!")
 
@@ -409,13 +427,13 @@ if game == "Y" or game == "y":
           3. Extreme!
     """)
 
-    diff = input("Choose your difficulty: ")
+    diff = input("Choose your difficulty: ").replace(" ", "")
     # Vaikeustason valinta, printtaa hahmo fuktiot ja asettaa "player" muuttujan hahmoksi. LOOP!
     while diff != "1" or diff != "2" or diff != "3":
 
         if diff == "1":
             Yrjö()
-            confirm = input("Do you want to continue? [Y/N] ")
+            confirm = input("Do you want to continue? [Y/N] ").replace(" ", "")
             if confirm == "Y" or confirm == "y":
                 player = "Yrjö"
                 break
@@ -423,33 +441,31 @@ if game == "Y" or game == "y":
                 diff = input("Choose your difficulty: ")
         elif diff == "2":
             Hasan()
-            confirm = input("Do you want to continue? [Y/N] ")
+            confirm = input("Do you want to continue? [Y/N] ").replace(" ", "")
             if confirm == "Y" or confirm == "y":
                 player = "Hasan"
                 break
             elif confirm == "N" or confirm == "n":
-                diff = input("Choose your difficulty: ")
+                diff = input("Choose your difficulty: ").replace(" ", "")
 
         elif diff == "3":
             kim()
-            confirm = input("Do you want to continue? [Y/N] ")
+            confirm = input("Do you want to continue? [Y/N] ").replace(" ", "")
             if confirm == "Y" or confirm == "y":
                 player = "Kim"
                 break
             elif confirm == "N" or confirm == "n":
-                diff = input("Choose your difficulty: ")
+                diff = input("Choose your difficulty: ").replace(" ", "")
         elif diff == "Exit" or diff == "exit":
             exit()
 
         else:
             print("Try writing 1, 2 or 3")
-            diff = input("Choose your difficulty: ")
+            diff = input("Choose your difficulty: ").replace(" ", "")
 elif game == "N" or game == "n":
     print("Bye bye!")
     exit()
 #Hahmo valittu koodi, pelin ALKU
-dbSearch.execute(f"SELECT airport.name as 'Airport' FROM airport, game WHERE location = ident and player = '{player}';")
-print(f"Welcome {player} to {result()}")
 # character_select.py LOPPUU! exit ei enään toimi!
 
 # pelin lokaatio resettaa
@@ -461,7 +477,24 @@ exitList = {"Exit","exit", "Exit game","exit game", "Quit","quit", "Quit game","
 gpsList = {"GPS","GPs","Gps","gps"}
 helpList = {"?","Help","help"}
 moveList = {"1","2","3","move","Move"} #Tää on vain kun pelaaja haluaa liikkua ja mainloop ei tunnista näitä niin printtaa "Incorrect..." ja nyt ne on mukana eikä anna sitä viestiä.
-main_airport_event()
+
+clear()
+time.sleep(2)
+print("It is 1st of December 2077")
+time.sleep(3)
+print("The world is about to fall\nClimate change might be irreversible.")
+time.sleep(3)
+print("Our only escape is space.")
+time.sleep(3)
+print(f"The last launch to Mars leaves in {timeCall()} days.")
+time.sleep(3)
+print("You have to reach America and sum up one MILLION dollars to pay for the ticket.")
+time.sleep(3)
+tell_location()
+time.sleep(3)
+print("Are you worthy of this master race?")
+time.sleep(4)
+clear()
 
 # Looppi jossa pelin toiminnallisuus tapahtuu
 while True:
@@ -473,7 +506,7 @@ while True:
         # Pelin häviäminen
         print("Game over")
         break
-    player_prompt = str(input('For actions type '"'Help or ?'"'\n'))
+    player_prompt = str(input('For actions type '"'Help or ?'"'\n')).replace(" ", "")
 
     if player_prompt in exitList:
         # Pelaaja itse lopettaa
@@ -499,6 +532,11 @@ while True:
     if player_prompt == "co2" or "Co2" or "CO2" or "C02":
         co2_total()
 
+    if player_prompt == "Clear" or player_prompt == "clear":
+        clear_prompt = input("This action removes all previus text.\nAre you sure? [Y/N] ")
+        if clear_prompt == "Y" or clear_prompt == "y":
+            clear()
+
     # Pelaaja voi katsoa nykyisen lokaation
     elif player_prompt in gpsList:
         tell_location()
@@ -508,9 +546,10 @@ while True:
         Time
         Wallet
         GPS
-        
+        Co2
+        Clear
         Quit game
         """)
 
-    elif player_prompt not in moveList:
+    else:
         print("Action not found!")
