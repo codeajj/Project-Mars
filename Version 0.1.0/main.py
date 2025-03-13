@@ -474,22 +474,6 @@ co2List = {"co2", "Co2", "CO2", "c02", "C02"}
 
 
 clear()
-time.sleep(2)
-print("It is 1st of December 2077")
-time.sleep(3)
-print("The world is about to fall\nClimate change might be irreversible.")
-time.sleep(3)
-print("Our only escape is space.")
-time.sleep(3)
-print(f"The last launch to Mars leaves in {timeCall()} days.")
-time.sleep(3)
-print("You have to reach America and sum up one MILLION dollars to pay for the ticket.")
-time.sleep(3)
-tell_location()
-time.sleep(3)
-print("Are you worthy of this master race?")
-time.sleep(4)
-clear()
 
 # Looppi jossa pelin toiminnallisuus tapahtuu
 while True:
