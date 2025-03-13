@@ -117,21 +117,15 @@ def move():
                 airports()
             if move_confirm == "N" or move_confirm == "n":
                 break
-            else:
-                print("Action not found!")
-                continue
-
             islooping = False
         elif player_move_prompt == "2":
             events()
             islooping = False
-
         elif player_move_prompt == "3":
             break
-
         else:
             print("Wrong option, try again")
-            player_move_prompt = input(f"\nType: '1' to move to next country {nextCountry} or \ntype: '2' to move inside the country \nType '3' to cancel\n").replace(" ", "")
+            continue
     return
 def timeCall():
     dbSearch.execute(f"select time from game where player = '{player}';")
