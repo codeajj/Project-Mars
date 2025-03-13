@@ -20,12 +20,6 @@ mars_condition = False
 # tehdään hakuväline databaseen
 dbSearch = project_mars.cursor()
 
-def textClear():
-    if name == 'nt':
-        _ = system('cls')
-    else:
-        _ = system('clear')
-
 #tehdään databasesta tuloksen saaminen funktioksi:
 def result():
     ugly = dbSearch.fetchall()
