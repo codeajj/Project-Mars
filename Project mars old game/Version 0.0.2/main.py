@@ -29,9 +29,7 @@ def result():
 
 def co2_total():
     dbSearch.execute(f"select co2_consumed from game where player = '{player}'")
-    emission = result()
-    print(f"Your emissions total to: {emission}")
-    return emission
+    return result()
 
 def textCleaner(text): # toimii kuin resultin funktio, mutta tallentaa pilkut myös
     beatiful = re.sub(r"[^\s+a-öA-ZÖ,0-9ÄåÅøØ-]", "",str(text))
@@ -61,13 +59,13 @@ def airports():
     elif currentCountry == "Poland":
         ICAO = ["EPEL", "EPBA", "EPCE", "EPKT", "ELLX"]
     elif currentCountry == "Luxembourg":
-        ICAO = ["ELNT", "ELUS", "ENGM"] #TODO tee funktio joka huomioi luxembpurgin lentokenttien puuttuvan määrän
+        ICAO = ["ELNT", "ELUS", "ENGM"]
     elif currentCountry == "Norway":
         ICAO = ["ESD", "ENSG", "ENAL", "ENSS", "RKSI"]
     elif currentCountry == "South Korea":
         ICAO = ["RKTA", "RKTL", "RKNY", "RKTU", "KJFK"]
     elif currentCountry == "United States":
-        ICAO = ["PALB", "PAUO", "KEGE", "KBSE", "MARS"]  # BROKEN HUOM TÄÄLLÄ VAIN 4 KENTTÄÄ
+        ICAO = ["PALB", "PAUO", "KEGE", "KBSE", "MARS"]
     else:
         print("Error 404")
     for i in ICAO:
@@ -117,16 +115,23 @@ def move():
                 airports()
             if move_confirm == "N" or move_confirm == "n":
                 break
+            else:
+                print("Action not found!")
+                continue
+
             islooping = False
         elif player_move_prompt == "2":
             events()
             islooping = False
+
         elif player_move_prompt == "3":
             break
+
         else:
             print("Wrong option, try again")
-            continue
+            player_move_prompt = input(f"\nType: '1' to move to next country {nextCountry} or \ntype: '2' to move inside the country \nType '3' to cancel\n").replace(" ", "")
     return
+
 def timeCall():
     dbSearch.execute(f"select time from game where player = '{player}';")
     time = result()
@@ -200,7 +205,6 @@ Type: '5' to leave!\n""").replace(" ", "").replace(" ", "")
                 print(f"Your total emissions increased to {show_emissions} ")
                 place1_state = "OPTION USED"
                 place1_option = 0
-                break
             elif player_chosen_place == place2_option:
                 # EKAN MAAN ('SAOI') EVENTTI TULEE TÄHÄN
                 print(f"You have arrived in {place2_state}.")
@@ -210,7 +214,6 @@ Type: '5' to leave!\n""").replace(" ", "").replace(" ", "")
                 print(f"Your total emissions increased to {show_emissions} ")
                 place2_state = "OPTION USED"
                 place2_option = 0
-                break
             elif player_chosen_place == place3_option:
                 # EKAN MAAN ('SACC') EVENTTI TULEE TÄHÄN
                 print(f"You have arrived in {place3_state}.")
@@ -220,7 +223,6 @@ Type: '5' to leave!\n""").replace(" ", "").replace(" ", "")
                 print(f"Your total emissions increased to {show_emissions} ")
                 place3_state = "OPTION USED"
                 place3_option = 0
-                break
             elif player_chosen_place == place4_option:
                 # EKAN MAAN ('SAAP') EVENTTI TULEE TÄHÄN
                 print(f"You have arrived in {place4_state}.")
@@ -230,7 +232,6 @@ Type: '5' to leave!\n""").replace(" ", "").replace(" ", "")
                 print(f"Your total emissions increased to {show_emissions} ")
                 place4_state = "OPTION USED"
                 place4_option = 0
-                break
             elif player_chosen_place == "5":
                 print("You have left from inside country events\n")
                 player_has_gone_to_events = True
@@ -370,8 +371,8 @@ def Mars():
     global game_is_playable
     has_moved = False
     while True:
-        mars_move = input("Type: '1' to go to Mars or\nType: '2' to return to events\n").replace(" ", "")
-        if mars_move == "1":
+        mars_move = int(input("Type: '1' to go to Mars or\nType: '2' to return to events\n")).replace(" ", "")
+        if mars_move == 1:
             while True:
                 mars_move_check = input("It will cost 1 000 000. Type 'Y' to pay or\nType: 'N' to cancel\n").replace(" ", "")
                 if mars_move_check == "Y":
@@ -392,7 +393,7 @@ def Mars():
                 print(f"Your total co2 consumption was {co2_used}")
                 print("END OF DEMO")
                 break
-        elif mars_move == "2":
+        elif mars_move == 2:
             print("Returning...\n")
             print("Moving inside country implementation...\n")
             events()
@@ -470,10 +471,6 @@ exitList = {"Exit","exit", "Exit game","exit game", "Quit","quit", "Quit game","
 gpsList = {"GPS","GPs","Gps","gps"}
 helpList = {"?","Help","help"}
 moveList = {"1","2","3","move","Move"} #Tää on vain kun pelaaja haluaa liikkua ja mainloop ei tunnista näitä niin printtaa "Incorrect..." ja nyt ne on mukana eikä anna sitä viestiä.
-co2List = {"co2", "Co2", "CO2", "c02", "C02"}
-
-
-clear()
 
 # Looppi jossa pelin toiminnallisuus tapahtuu
 while True:
@@ -481,7 +478,7 @@ while True:
     if clock == -1:
         game_is_playable = False
 
-    elif not game_is_playable:
+    if not game_is_playable:
         # Pelin häviäminen
         print("Game over")
         break
@@ -492,7 +489,7 @@ while True:
         print("Bye bye!")
         break
 
-    elif player_prompt == "Move" or player_prompt == "move":
+    if player_prompt == "Move" or player_prompt == "move":
         if mars_condition:
             Mars()
 
@@ -502,16 +499,16 @@ while True:
             # Tällä hetkellä liikutaan vain maiden välillä isoilla lentokentillä
             # Mikäli pelaaja ei liiku, voi se suorittaa tapahtumia WIP
             move()
-    elif player_prompt == "Time" or player_prompt == "time":
+    if player_prompt == "Time" or player_prompt == "time":
         print(f"You have {timeCall()} days left!\n")
 
-    elif player_prompt == "Wallet" or player_prompt == "wallet":
+    if player_prompt == "Wallet" or player_prompt == "wallet":
         walletCheck()
 
-    elif player_prompt in co2List:
+    if player_prompt == "co2" or "Co2" or "CO2" or "C02":
         co2_total()
 
-    elif player_prompt == "Clear" or player_prompt == "clear":
+    if player_prompt == "Clear" or player_prompt == "clear":
         clear_prompt = input("This action removes all previus text.\nAre you sure? [Y/N] ")
         if clear_prompt == "Y" or clear_prompt == "y":
             clear()
@@ -529,3 +526,6 @@ while True:
         Clear
         Quit game
         """)
+
+    else:
+        print("Action not found!")

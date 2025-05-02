@@ -1,6 +1,5 @@
 import mysql.connector
 import re
-import time
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
 import random
@@ -11,8 +10,8 @@ project_mars = mysql.connector.connect(
   host="localhost",
   user="user",
   password="test",
-  database="project_mars"
-)
+  database="project_mars")
+
 player = ""
 player_has_gone_to_events = False
 #voiko pelaaja mennä marsiin
