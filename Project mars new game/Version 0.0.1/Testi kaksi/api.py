@@ -14,5 +14,9 @@ def game_route():
     response = game.process_input(user_input)
     return jsonify({"response": response})
 
+@app.route("/status", methods=["GET"])
+def status():
+    return jsonify(game.get_status())
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
